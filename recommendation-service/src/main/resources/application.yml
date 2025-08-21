@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: recommendation-service
+
+  config:
+    import: optional:config-server:http://config-server:8888
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/recommendation_db
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
