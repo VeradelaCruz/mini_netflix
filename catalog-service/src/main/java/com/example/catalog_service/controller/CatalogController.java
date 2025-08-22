@@ -1,6 +1,7 @@
 package com.example.catalog_service.controller;
 
 import com.example.catalog_service.dtos.CatalogUpdateDto;
+import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.service.CatalogService;
 import jakarta.validation.Valid;
@@ -27,9 +28,9 @@ public class CatalogController {
          return ResponseEntity.ok(catalogService.findAllMovies());
      }
 
-    @GetMapping("/{movieId}")
-    public ResponseEntity<Catalog> getById(@PathVariable String movieId){
-        Catalog catalog = catalogService.findMovieById(movieId);
+    @GetMapping("/id")
+    public ResponseEntity<Catalog> getById(@RequestBody RatingScoreDTO dto){
+        Catalog catalog = catalogService.findMovieById(dto.getMovieId());
         return ResponseEntity.ok(catalog);
     }
 
@@ -52,6 +53,12 @@ public class CatalogController {
     public ResponseEntity<Catalog> getByTitle(@PathVariable String title){
         Catalog catalog= catalogService.findByTitle(title);
         return ResponseEntity.ok(catalog);
+    }
+
+    @PutMapping("/updateScore")
+    public ResponseEntity<?> updateScore(@RequestBody RatingScoreDTO dto){
+        Catalog updatedScore= catalogService.changeScore(dto);
+        return ResponseEntity.ok(updatedScore);
     }
 
 

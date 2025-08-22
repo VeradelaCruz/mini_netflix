@@ -1,10 +1,7 @@
 package com.example.rating_service.service;
 
 import com.example.rating_service.client.CatalogClient;
-import com.example.rating_service.dtos.CatalogDTO;
-import com.example.rating_service.dtos.RatingAverageDTO;
-import com.example.rating_service.dtos.RatingDTO;
-import com.example.rating_service.dtos.RatingUserDTO;
+import com.example.rating_service.dtos.*;
 import com.example.rating_service.enums.Score;
 import com.example.rating_service.exception.MovieNotFoundById;
 import com.example.rating_service.exception.RatingNotFoundException;
@@ -21,51 +18,71 @@ public class RatingService {
     @Autowired
     private RatingMapper ratingMapper;
     @Autowired
-    private  RatingRepository ratingRepository;
+    private RatingRepository ratingRepository;
     @Autowired
-    private  CatalogClient catalogClient;
- //Operation CRUD:
+    private CatalogClient catalogClient;
+
+    //Operation CRUD:
     //Create Ratings
-    public List<Rating>  createRating(List<Rating> ratingList){
-        if(ratingList==null || ratingList.isEmpty()){
+    public List<Rating> createRating(List<Rating> ratingList) {
+        if (ratingList == null || ratingList.isEmpty()) {
             throw new IllegalArgumentException("The rating list cannot be empty");
         }
         return ratingRepository.saveAll(ratingList);
     }
 
-    //Create only one rating:
-    public Rating createOneRating(RatingUserDTO dto) {
+    //We create a new rating from user and update score in catalog service
+    public RatingAverageDTO saveRatingAndUpdateCatalog(RatingUserDTO ratingDTO) {
+        // Create rating
         Rating rating = new Rating();
-        rating.setMovieId(dto.getMovieId());
-        rating.setUserId(dto.getUserId());
-        rating.setComment(dto.getComment());
+        rating.setMovieId(ratingDTO.getMovieId());
+        rating.setUserId(ratingDTO.getUserId());
+        rating.setScore(Score.from(ratingDTO.getScore()));
+        rating.setComment(ratingDTO.getComment());
+        ratingRepository.save(rating);
 
-        if (dto.getScore() != null) {
-            rating.setScore(Score.from(dto.getScore())); // Conversión de String a Enum
-        }
+        // 2. Get all ratings from rating:
+        List<Rating> ratings = ratingRepository.findByMovieId(ratingDTO.getMovieId());
 
-        return ratingRepository.save(rating);
+        // 3. Calculation for average score
+        double average = ratings.stream()
+                .map(Rating::getScore)
+                .mapToInt(Score::getValue)
+                .average()
+                .orElse(0.0);
+
+        // 4. Update ratingAverage in catalog service
+        RatingScoreDTO dto = new RatingScoreDTO();
+        dto.setMovieId(ratingDTO.getMovieId());
+        dto.setRatingAverage(average);
+        catalogClient.updateScore(dto);
+
+        // 5. Return dto with average and movie id:
+        RatingAverageDTO averageDTO = new RatingAverageDTO();
+        averageDTO.setMovieId(ratingDTO.getMovieId());
+        averageDTO.setAverageScore(average);
+        return averageDTO;
     }
 
 
     //Get all ratings:
-    public List<Rating> findAllRating(){
+    public List<Rating> findAllRating() {
         return ratingRepository.findAll();
     }
 
     //Get by rating id:
-    public Rating findById(String id){
+    public Rating findById(String id) {
         return ratingRepository.findById(id)
-                .orElseThrow(()->new RatingNotFoundException(id));
+                .orElseThrow(() -> new RatingNotFoundException(id));
     }
 
-    public List<Rating> findAllByMovieId(String movieId){
+    public List<Rating> findAllByMovieId(String movieId) {
         //Call feign client to get movie
-        CatalogDTO movie= catalogClient.getById(movieId);
+        CatalogDTO movie = catalogClient.getById(movieId);
         //Throw exception if it doesn't exist
-        if (movie== null ){
+        if (movie == null) {
             throw new MovieNotFoundById(movieId);
-        }else {
+        } else {
             List<Rating> ratings = ratingRepository.findByMovieId(movieId);
             return ratings;
         }
@@ -73,7 +90,7 @@ public class RatingService {
 
 
     //Update a rating
-    public RatingDTO changeRating(String id, RatingDTO ratingDTO){
+    public RatingDTO changeRating(String id, RatingDTO ratingDTO) {
         Rating updatedRating = findById(id);
         ratingMapper.updateRatingToDto(ratingDTO, updatedRating);
         Rating saved = ratingRepository.save(updatedRating);
@@ -81,33 +98,9 @@ public class RatingService {
     }
 
     //Delete rating
-    public void removeRating(String id){
+    public void removeRating(String id) {
         findAllByMovieId(id);
         ratingRepository.deleteById(id);
     }
 
-
-    //Get averageScore from movies:
-    public RatingAverageDTO calculateAverageScore(String movieId){
-        //We call catalog-service to get the movie's name:
-        CatalogDTO catalogDTO= catalogClient.getById(movieId);
-        //Get all ratings:
-        List<Rating> ratings = ratingRepository.findByMovieId(movieId);
-
-        //Calculation of average scores made by all users:
-        double average = ratings.stream()
-                .map(Rating::getScore)           // extrae el Score de cada Rating
-                .mapToInt(Score::getValue)  // ahora score es Score, llamamos al getValue()
-                .average()
-                .orElse(0.0);                    // devuelve 0 si no hay ratings
-
-        //Assigning each value to dto
-        RatingAverageDTO averageDTO= new RatingAverageDTO();
-        averageDTO.setMovieId(movieId);
-        averageDTO.setAverageScore(average);
-        averageDTO.setTitle(catalogDTO.getTitle());
-        averageDTO.setDescription(catalogDTO.getDescription());
-
-        return averageDTO;
-    }
 }

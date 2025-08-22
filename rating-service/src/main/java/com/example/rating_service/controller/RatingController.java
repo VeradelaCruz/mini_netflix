@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/rating")
@@ -26,12 +28,18 @@ public class RatingController {
         return ResponseEntity.ok(ratingList);
     }
 
-    @PostMapping("/addOneRating")
-    public ResponseEntity<Rating> addOneRating(@RequestBody RatingUserDTO dto) {
-        Rating saved = ratingService.createOneRating(dto);
-        return ResponseEntity.ok(saved);
-    }
+    @PostMapping("/addAndCalculateAverage")
+    public ResponseEntity<Map<String, Object>> addAndCalculateAverage(@RequestBody RatingUserDTO ratingUserDTO) {
+        RatingAverageDTO averageDTO = ratingService.saveRatingAndUpdateCatalog(ratingUserDTO);
 
+        // Crear el cuerpo de respuesta
+        Map<String, Object> response = new HashMap<>();
+        response.put("movieId", averageDTO.getMovieId());
+        response.put("averageScore", averageDTO.getAverageScore());
+        response.put("message", "Rating added and catalog updated successfully");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
     @GetMapping("/getAll")
     public List<Rating> getAll(){
@@ -60,11 +68,5 @@ public class RatingController {
     public ResponseEntity<String> deleteRating(@PathVariable String id){
         ratingService.removeRating(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/getAverage/{movieId}")
-    public ResponseEntity<?> getAverage(@PathVariable String movieId){
-        RatingAverageDTO ratingAverageDTO= ratingService.calculateAverageScore(movieId);
-        return ResponseEntity.ok(ratingAverageDTO);
     }
 }

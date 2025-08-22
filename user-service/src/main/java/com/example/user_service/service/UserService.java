@@ -1,6 +1,8 @@
 package com.example.user_service.service;
 
+import com.example.user_service.client.CatalogClient;
 import com.example.user_service.client.RatingClient;
+import com.example.user_service.dtos.RatingScoreDTO;
 import com.example.user_service.dtos.RatingUserDTO;
 import com.example.user_service.dtos.UserDTO;
 import com.example.user_service.enums.Role;
@@ -23,6 +25,8 @@ public class UserService {
     private  UserMapper userMapper;
     @Autowired
     private RatingClient ratingClient;
+    @Autowired
+    private CatalogClient catalogClient;
 
     //Create user:
     public List<User> createUser(List<User> userList){
@@ -66,9 +70,10 @@ public class UserService {
     }
 
     //Create a rating:
-    public String sendRating(RatingUserDTO ratingDTO){
-        ratingClient.addOneRating(ratingDTO);
-        return "Rating sent successfully.";
+    public String sendRatingAndUpdateCatalog(RatingUserDTO ratingDTO) {
+        ratingClient.addAndCalculateAverage(ratingDTO);
+        return "Rating sent and average updated successfully.";
     }
+
 
 }

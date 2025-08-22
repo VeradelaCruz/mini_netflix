@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "user")
@@ -20,7 +21,7 @@ public class User {
     @NotBlank(message = "Email cannot be empty")
     private String email;
     @NotEmpty
-    private List<String> preferences;
+    private List<String> preferences = new ArrayList<>();
     @NotNull
     private Role role;
 

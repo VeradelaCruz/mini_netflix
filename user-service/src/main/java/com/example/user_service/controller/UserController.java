@@ -54,6 +54,6 @@ public class UserController {
 
     @PostMapping("/sendRating")
     public ResponseEntity<String> sendRating(@RequestBody RatingUserDTO ratingUserDTO){
-        return ResponseEntity.ok(userService.sendRating(ratingUserDTO));
+        return ResponseEntity.ok(userService.sendRatingAndUpdateCatalog(ratingUserDTO));
     }
 }

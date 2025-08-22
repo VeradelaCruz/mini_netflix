@@ -4,11 +4,19 @@ import lombok.Data;
 
 @Data
 public class RatingUserDTO {
+    private String id;
     private String movieId;
     private String userId;
     private String score;
     private String comment;
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
     public String getMovieId() {
         return movieId;
     }

@@ -1,6 +1,7 @@
 package com.example.catalog_service.service;
 
 import com.example.catalog_service.dtos.CatalogUpdateDto;
+import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.exception.MovieNotFound;
 import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.mapper.CatalogMapper;
@@ -26,7 +27,7 @@ public class CatalogService {
      catalogs.forEach(c -> c.setRatingAverage(0.0));
 
      return catalogRepository.saveAll(catalogs);
- }
+    }
 
     //Find a movie by movieId:
     public Catalog findMovieById(String movieId){
@@ -62,6 +63,14 @@ public class CatalogService {
      return catalogRepository.findByTitle(title)
              .orElseThrow(()-> new MovieNotFoundByName(title));
     }
+
+    //Update score:
+    public Catalog changeScore(RatingScoreDTO dto){
+        Catalog catalog= findMovieById(dto.getMovieId());
+        catalog.setRatingAverage(dto.getRatingAverage());
+        return catalogRepository.save(catalog);
+    }
+
 
 
 
