@@ -6,25 +6,29 @@ spring:
     name: api-gateway
 
   config:
-    import: optional:config-server:http://localhost:8888
+    import: optional:configserver:http://localhost:8888
 
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes:
         - id: catalog-service
-          uri: http://localhost:8081
+          uri: lb://catalog-service
           predicates:
             - Path=/catalog/**
         - id: rating-service
-          uri: http://localhost:8082
+          uri: lb://rating-service
           predicates:
             - Path=/rating/**
         - id: recommendation-service
-          uri: http://localhost:8083
+          uri: lb://recommendation-service
           predicates:
             - Path=/recommendation/**
         - id: user-service
-          uri: http://localhost:8084
+          uri: lb://user-service
           predicates:
             - Path=/user/**
 
@@ -38,3 +42,8 @@ management:
     web:
       exposure:
         include: "*"
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
