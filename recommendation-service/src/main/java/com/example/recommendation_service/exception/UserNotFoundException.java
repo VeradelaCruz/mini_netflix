@@ -1,4 +1,4 @@
-package com.example.user_service.exception;
+package com.example.recommendation_service.exception;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String userId) {
