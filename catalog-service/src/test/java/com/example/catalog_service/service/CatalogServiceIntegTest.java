@@ -1,6 +1,8 @@
 package com.example.catalog_service.service;
 
 import com.example.catalog_service.enums.Genre;
+import com.example.catalog_service.exception.MovieNotFound;
+import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,34 +15,34 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 import static com.mongodb.assertions.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-import static sun.jvm.hotspot.runtime.BasicObjectLock.size;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
 public class CatalogServiceIntegTest {
+
     @Autowired
     private CatalogService catalogService;
 
     @Autowired
     private CatalogRepository catalogRepository;
 
+    private Catalog catalog1;
+    private Catalog catalog2;
     private List<Catalog> list;
 
     @BeforeEach
     void setUp() {
-        catalogRepository.deleteAll(); // limpiar BD antes de cada prueba
+        catalogRepository.deleteAll();
 
-        Catalog catalog1 = new Catalog();
+        catalog1 = new Catalog();
         catalog1.setMovieId("1L");
         catalog1.setTitle("Title1");
         catalog1.setGenre(Genre.ANIMATION);
         catalog1.setReleaseYear(1990);
         catalog1.setDescription("-----");
 
-        Catalog catalog2 = new Catalog();
+        catalog2 = new Catalog();
         catalog2.setMovieId("2L");
         catalog2.setTitle("Title2");
         catalog2.setGenre(Genre.ACTION);
@@ -53,7 +55,7 @@ public class CatalogServiceIntegTest {
     @Test
     @DisplayName("It should create a catalog with two movies")
     void createCatalogTest_ShouldReturnList(){
-        List<Catalog> result= catalogService.createMovies(list);
+        List<Catalog> result = catalogService.createMovies(list);
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -64,7 +66,35 @@ public class CatalogServiceIntegTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("It should find a movie by id, if founded")
+    void findMovieById_ShouldReturnAMovie() {
+        // Arrange - persistir datos en la BD de prueba
+        catalogRepository.save(catalog1);
 
+        // Act - llamar al metodo del service
+        Catalog catalogResult = catalogService.findMovieById(catalog1.getMovieId());
 
+        // Assert - validar el resultado
+        assertNotNull(catalogResult);
+        assertEquals("1L", catalogResult.getMovieId());
+
+        // Verificar también desde el repositorio
+        Catalog catalog = catalogRepository.findById(catalog1.getMovieId())
+                .orElseThrow();
+        assertEquals("1L", catalog.getMovieId());
+    }
+
+    @Test
+    @DisplayName("It should return an exception")
+    void findMovieById_ShouldReturnAnException() {
+
+        MovieNotFound exception = assertThrows(
+                MovieNotFound.class,
+                () -> catalogService.findMovieById("999L") // ID que no existe
+        );
+
+        assertEquals("Movie with id: 999L not found.", exception.getMessage());
+    }
 }
+
+
