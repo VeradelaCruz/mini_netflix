@@ -2,6 +2,7 @@ package com.example.user_service.controller;
 
 import com.example.user_service.dtos.RatingUserDTO;
 import com.example.user_service.dtos.UserDTO;
+import com.example.user_service.dtos.UserRoleDTO;
 import com.example.user_service.enums.Role;
 import com.example.user_service.mapper.UserMapper;
 import com.example.user_service.models.User;
@@ -57,9 +58,17 @@ public class UserController {
         return ResponseEntity.ok(userService.sendRatingAndUpdateCatalog(ratingUserDTO));
     }
 
-    @PostMapping("/getByPreferences")
+    @GetMapping("/get-by-preferences")
     public ResponseEntity<List<User>> getUsersByPreferences(@RequestBody List<String> preferences) {
         List<User> users = userService.findUserByPreferences(preferences);
         return ResponseEntity.ok(users);
     }
+    
+    @GetMapping("/count-by-roles")
+    public ResponseEntity<List<UserRoleDTO>> countUsersByRoles() {
+        List<UserRoleDTO> result = userService.countUsersByRoles();
+        return ResponseEntity.ok(result);
+    }
+
+
 }

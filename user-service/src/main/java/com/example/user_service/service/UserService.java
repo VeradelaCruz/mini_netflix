@@ -5,6 +5,7 @@ import com.example.user_service.client.RatingClient;
 import com.example.user_service.dtos.RatingScoreDTO;
 import com.example.user_service.dtos.RatingUserDTO;
 import com.example.user_service.dtos.UserDTO;
+import com.example.user_service.dtos.UserRoleDTO;
 import com.example.user_service.enums.Role;
 import com.example.user_service.exception.UserNotFoundException;
 import com.example.user_service.mapper.UserMapper;
@@ -87,4 +88,23 @@ public class UserService {
                         .anyMatch(prefsSet::contains))
                 .collect(Collectors.toList());
     }
+
+    //Count users by role:
+    public List<UserRoleDTO> countUsersByRoles() {
+        return findAll().stream()
+                //Agrupa los usuarios por rol y cuenta cuántos hay en cada grupo
+                .collect(Collectors.groupingBy(User::getRole, Collectors.counting()))
+                //Recorremos cada par (rol, cantidad)
+                .entrySet().stream()
+                //Convertimos a UserRoleDTO
+                .map(entry -> {
+                    UserRoleDTO dto = new UserRoleDTO();
+                    dto.setRole(entry.getKey());
+                    dto.setAmount(entry.getValue().intValue());
+                    return dto;
+                })
+                //Convertimos los dtos a lista
+                .collect(Collectors.toList());
+    }
+
 }
