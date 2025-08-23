@@ -64,7 +64,7 @@ public class CatalogController {
         return ResponseEntity.ok(updatedScore);
     }
 
-    @GetMapping("/getByGenre")
+    @PostMapping("/getByGenre")
     public ResponseEntity<?> getByGenre(@RequestBody List<Genre> genres){
         List<Catalog> list= catalogService.findByGenre(genres);
         return ResponseEntity.ok(list);
@@ -76,8 +76,8 @@ public class CatalogController {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/group-by-genre")
-    public ResponseEntity<Map<Genre, List<CatalogDTO>>> groupByGenre(@RequestParam Genre genre) {
+    @GetMapping("/group-by-genre/{genre}")
+    public ResponseEntity<Map<Genre, List<CatalogDTO>>> groupByGenre(@PathVariable Genre genre) {
         Map<Genre, List<CatalogDTO>> result = catalogService.groupByGenre(genre);
         return ResponseEntity.ok(result);
     }

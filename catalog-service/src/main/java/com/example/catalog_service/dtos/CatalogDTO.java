@@ -11,6 +11,9 @@ public class CatalogDTO {
     private Genre genre;
 
     public CatalogDTO(Catalog catalog) {
+        this.movieId = catalog.getMovieId();
+        this.title = catalog.getTitle();
+        this.genre = catalog.getGenre();
     }
 
     public String getMovieId() {
