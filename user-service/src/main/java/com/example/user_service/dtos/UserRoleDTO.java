@@ -3,11 +3,21 @@ package com.example.user_service.dtos;
 import com.example.user_service.enums.Role;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class UserRoleDTO {
-    private String userId;
+    private List<String> userIds;
     private Role role;
     private long amount;
+
+    public List<String> getUserIds() {
+        return userIds;
+    }
+
+    public void setUserIds(List<String> userIds) {
+        this.userIds = userIds;
+    }
 
     public long getAmount() {
         return amount;
@@ -15,14 +25,6 @@ public class UserRoleDTO {
 
     public void setAmount(long amount) {
         this.amount = amount;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public Role getRole() {

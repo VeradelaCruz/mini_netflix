@@ -90,21 +90,28 @@ public class UserService {
     }
 
     //Count users by role:
+    //Count users by role
     public List<UserRoleDTO> countUsersByRoles() {
         return findAll().stream()
-                //Agrupa los usuarios por rol y cuenta cuántos hay en cada grupo
-                .collect(Collectors.groupingBy(User::getRole, Collectors.counting()))
-                //Recorremos cada par (rol, cantidad)
+                // Agrupa los usuarios por rol
+                .collect(Collectors.groupingBy(User::getRole))
+                // Recorremos cada par (rol, lista de usuarios)
                 .entrySet().stream()
-                //Convertimos a UserRoleDTO
+                // Convertimos a UserRoleDTO
                 .map(entry -> {
                     UserRoleDTO dto = new UserRoleDTO();
                     dto.setRole(entry.getKey());
-                    dto.setAmount(entry.getValue().intValue());
+                    // cantidad de usuarios
+                    dto.setAmount(entry.getValue().size());
+                    // lista de IDs
+                    dto.setUserIds(entry.getValue().stream()
+                            .map(User::getUserId)
+                            .collect(Collectors.toList()));
                     return dto;
                 })
-                //Convertimos los dtos a lista
+                // Convertimos los DTOs a lista
                 .collect(Collectors.toList());
     }
+
 
 }
