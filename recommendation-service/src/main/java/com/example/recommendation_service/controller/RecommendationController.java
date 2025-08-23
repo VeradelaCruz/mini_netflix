@@ -1,5 +1,7 @@
 package com.example.recommendation_service.controller;
 
+import com.example.recommendation_service.dtos.CatalogDTO;
+import com.example.recommendation_service.dtos.UserDTO;
 import com.example.recommendation_service.models.Recommendation;
 import com.example.recommendation_service.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,4 +32,15 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendations);
     }
 
+    @GetMapping("/userByMovie/{movieId}")
+    public ResponseEntity<?> getUsersByRecommendedMovie(@PathVariable String movieId) {
+        List<UserDTO> users = recommendationService.findUsersByRecommendedMovie(movieId);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/getByMinScore/{minScore}")
+    public ResponseEntity<List<CatalogDTO>> getByMinScore(@PathVariable Double minScore){
+        List<CatalogDTO> list= recommendationService.findRecommendationByScore(minScore);
+        return ResponseEntity.ok(list);
+    }
 }

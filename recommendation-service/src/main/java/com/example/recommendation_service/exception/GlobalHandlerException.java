@@ -12,4 +12,9 @@ public class GlobalHandlerException {
         Map<String, String> error = Map.of("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+    @ExceptionHandler(MovieNotFoundException.class)
+    public ResponseEntity<Map<String, String>> MovieNotFoundExceptionHandler(MovieNotFoundException ex) {
+        Map<String, String> error = Map.of("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 }
