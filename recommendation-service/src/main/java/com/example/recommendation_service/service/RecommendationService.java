@@ -41,16 +41,23 @@ public class RecommendationService {
     }
 
     //Get users by recommended movie:
-    public List<UserDTO> findUsersByRecommendedMovie(String movieId){
-        List<String> usersId= findAllRecommendations().stream()
-                .filter(recommendation -> recommendation.getRecommendedMovies().contains(movieId))
+    public List<UserDTO> findUsersByRecommendedMovie(String movieId) {
+        // Primero obtenemos los IDs de usuarios que tienen esta película recomendada
+        List<String> usersId = findAllRecommendations().stream()
+                .filter(recommendation -> recommendation.getRecommendedMovies() != null)
+                .filter(recommendation -> recommendation.getRecommendedMovies()
+                        .stream()
+                        .anyMatch(movie -> movieId.equals(movie.getMovieId()))) // Compara con el movieId de cada CatalogDTO
                 .map(Recommendation::getUserId)
                 .collect(Collectors.toList());
-        if(usersId.isEmpty()){
+
+        // Si no hay usuarios con esa película, lanzamos excepción
+        if (usersId.isEmpty()) {
             throw new MovieNotFoundException(movieId);
         }
-        return userClient.getAllUsers()
-                .stream()
+
+        // Filtramos todos los usuarios obtenidos del microservicio UserClient
+        return userClient.getAllUsers().stream()
                 .filter(user -> usersId.contains(user.getUserId()))
                 .collect(Collectors.toList());
     }
