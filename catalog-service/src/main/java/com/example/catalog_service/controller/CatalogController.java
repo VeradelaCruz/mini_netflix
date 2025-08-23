@@ -1,5 +1,6 @@
 package com.example.catalog_service.controller;
 
+import com.example.catalog_service.dtos.CatalogDTO;
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/catalog")
@@ -74,8 +76,10 @@ public class CatalogController {
         return ResponseEntity.ok(list);
     }
 
-
-
-
+    @GetMapping("/group-by-genre")
+    public ResponseEntity<Map<Genre, List<CatalogDTO>>> groupByGenre(@RequestParam Genre genre) {
+        Map<Genre, List<CatalogDTO>> result = catalogService.groupByGenre(genre);
+        return ResponseEntity.ok(result);
+    }
 
 }

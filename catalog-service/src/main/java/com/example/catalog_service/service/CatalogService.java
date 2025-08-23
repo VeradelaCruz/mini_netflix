@@ -1,5 +1,6 @@
 package com.example.catalog_service.service;
 
+import com.example.catalog_service.dtos.CatalogDTO;
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
@@ -11,10 +12,7 @@ import com.example.catalog_service.repository.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -94,5 +92,13 @@ public class CatalogService {
              // Take first 3
              .limit(3)
              .collect(Collectors.toList());
+    }
+
+    //Group movies by genre
+    public Map<Genre, List<CatalogDTO>> groupByGenre(Genre genre){
+        return findAllMovies().stream()
+                .filter(movie -> movie.getGenre().equals(genre))
+                .map(catalog -> new CatalogDTO(catalog))
+                .collect(Collectors.groupingBy(CatalogDTO::getGenre));
     }
 }
