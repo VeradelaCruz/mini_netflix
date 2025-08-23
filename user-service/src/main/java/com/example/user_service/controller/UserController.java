@@ -56,4 +56,10 @@ public class UserController {
     public ResponseEntity<String> sendRating(@RequestBody RatingUserDTO ratingUserDTO){
         return ResponseEntity.ok(userService.sendRatingAndUpdateCatalog(ratingUserDTO));
     }
+
+    @PostMapping("/getByPreferences")
+    public ResponseEntity<List<User>> getUsersByPreferences(@RequestBody List<String> preferences) {
+        List<User> users = userService.findUserByPreferences(preferences);
+        return ResponseEntity.ok(users);
+    }
 }

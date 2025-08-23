@@ -14,7 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -76,4 +77,14 @@ public class UserService {
     }
 
 
+    //Filter users by preferences:
+    public List<User> findUserByPreferences(List<String> preferences){
+        Set<String> prefsSet = new HashSet<>(preferences);
+        return findAll().stream()
+                .filter(user -> Optional.ofNullable(user.getPreferences())
+                        .orElse(Collections.emptyList())
+                        .stream()
+                        .anyMatch(prefsSet::contains))
+                .collect(Collectors.toList());
+    }
 }
