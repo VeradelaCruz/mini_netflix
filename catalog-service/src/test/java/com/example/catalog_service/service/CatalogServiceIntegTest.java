@@ -18,7 +18,10 @@ import java.util.List;
 import static com.mongodb.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(properties = "eureka.client.enabled=false")
+@SpringBootTest(properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false"
+})
 @ActiveProfiles("test")
 public class CatalogServiceIntegTest {
 

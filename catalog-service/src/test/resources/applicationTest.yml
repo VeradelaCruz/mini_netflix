@@ -6,7 +6,9 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-
+  cloud:
+    config:
+      enabled: false
 
 eureka:
   client:
