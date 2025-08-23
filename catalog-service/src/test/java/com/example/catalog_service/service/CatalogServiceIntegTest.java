@@ -3,6 +3,7 @@ package com.example.catalog_service.service;
 import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.exception.MovieNotFound;
 import com.example.catalog_service.exception.MovieNotFoundByName;
+import com.example.catalog_service.mapper.CatalogMapper;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,9 @@ public class CatalogServiceIntegTest {
 
     @Autowired
     private CatalogRepository catalogRepository;
+
+    @Autowired
+    private CatalogMapper catalogMapper;
 
     private Catalog catalog1;
     private Catalog catalog2;
@@ -85,7 +89,7 @@ public class CatalogServiceIntegTest {
     }
 
     @Test
-    @DisplayName("It should return an exception")
+    @DisplayName("It should throw MovieNotFound when movie id does not exist")
     void findMovieById_ShouldReturnAnException() {
 
         MovieNotFound exception = assertThrows(
@@ -95,6 +99,23 @@ public class CatalogServiceIntegTest {
 
         assertEquals("Movie with id: 999L not found.", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("It should return all movies from catalog")
+    void findAll_ShouldReturnList(){
+        catalogRepository.saveAll(list);
+
+        List<Catalog> catalogsResult= catalogService.findAllMovies();
+
+        assertNotNull(catalogsResult);
+        assertEquals(2, catalogsResult.size());
+
+        List<Catalog> catalogs= catalogRepository.findAll();
+        assertEquals(2, catalogs.size());
+    }
+
+    
+
 }
 
 
