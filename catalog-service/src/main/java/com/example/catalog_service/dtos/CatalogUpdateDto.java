@@ -1,6 +1,5 @@
 package com.example.catalog_service.dtos;
 
-import com.example.catalog_service.enums.Genre;
 import lombok.Data;
 
 @Data
@@ -31,5 +30,20 @@ public class CatalogUpdateDto {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public Double getRatingAverage() {
+        return ratingAverage;
+    }
+    public void setRatingAverage(Double ratingAverage) {
+        this.ratingAverage = ratingAverage;
+    }
+
+    public Integer getReleaseYear() {
+        return releaseYear;
+    }
+    public void setReleaseYear(Integer releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
 }
 

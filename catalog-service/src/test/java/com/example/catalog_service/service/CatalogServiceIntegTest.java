@@ -1,8 +1,8 @@
 package com.example.catalog_service.service;
 
+import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.exception.MovieNotFound;
-import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.mapper.CatalogMapper;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
@@ -18,7 +18,7 @@ import java.util.List;
 import static com.mongodb.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "eureka.client.enabled=false")
 @ActiveProfiles("test")
 public class CatalogServiceIntegTest {
 
@@ -34,6 +34,7 @@ public class CatalogServiceIntegTest {
     private Catalog catalog1;
     private Catalog catalog2;
     private List<Catalog> list;
+    private CatalogUpdateDto catalogUpdateDto;
 
     @BeforeEach
     void setUp() {
@@ -45,6 +46,7 @@ public class CatalogServiceIntegTest {
         catalog1.setGenre(Genre.ANIMATION);
         catalog1.setReleaseYear(1990);
         catalog1.setDescription("-----");
+        catalog1.setRatingAverage(4.4);
 
         catalog2 = new Catalog();
         catalog2.setMovieId("2L");
@@ -52,8 +54,16 @@ public class CatalogServiceIntegTest {
         catalog2.setGenre(Genre.ACTION);
         catalog2.setReleaseYear(1991);
         catalog2.setDescription("-----");
+        catalog2.setRatingAverage(4.3);
 
         list = List.of(catalog1, catalog2);
+
+        catalogUpdateDto= new CatalogUpdateDto();
+        catalogUpdateDto.setTitle("Title3");
+        catalogUpdateDto.setGenre("ACTION");
+        catalogUpdateDto.setReleaseYear(1992);
+        catalogUpdateDto.setDescription("-----");
+        catalogUpdateDto.setRatingAverage(4.5);
     }
 
     @Test
@@ -114,7 +124,31 @@ public class CatalogServiceIntegTest {
         assertEquals(2, catalogs.size());
     }
 
-    
+    @Test
+    @DisplayName("Should update a movie from catalog using mapper")
+    void updateCatalog_ShouldReturnDTO(){
+        catalogRepository.save(catalog1);
+
+        Catalog catalogUpdate= catalogService.changeCatalog(catalog1.getMovieId(), catalogUpdateDto);
+
+        catalogRepository.save(catalogUpdate);
+
+        assertNotNull(catalogUpdate);
+        assertEquals(catalogUpdateDto.getTitle(), catalogUpdate.getTitle());
+        assertEquals(Genre.valueOf(catalogUpdateDto.getGenre()), catalogUpdate.getGenre());
+        assertEquals(catalogUpdateDto.getDescription(), catalogUpdate.getDescription());
+        assertEquals(catalogUpdateDto.getReleaseYear(), catalogUpdate.getReleaseYear());
+        assertEquals(catalogUpdateDto.getRatingAverage(), catalogUpdate.getRatingAverage());
+
+        Catalog savedCatalog = catalogRepository.findById(catalog1.getMovieId())
+                .orElseThrow(()->new MovieNotFound(catalog1.getMovieId()));
+        assertEquals(catalogUpdateDto.getTitle(), savedCatalog.getTitle());
+        assertEquals(Genre.valueOf(catalogUpdateDto.getGenre()), savedCatalog.getGenre());
+        assertEquals(catalogUpdateDto.getDescription(), catalogUpdate.getDescription());
+        assertEquals(catalogUpdateDto.getReleaseYear(), catalogUpdate.getReleaseYear());
+        assertEquals(catalogUpdateDto.getRatingAverage(), catalogUpdate.getRatingAverage());
+
+    }
 
 }
 
