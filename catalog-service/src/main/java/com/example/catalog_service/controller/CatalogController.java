@@ -2,6 +2,7 @@ package com.example.catalog_service.controller;
 
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
+import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.service.CatalogService;
 import jakarta.validation.Valid;
@@ -60,6 +61,14 @@ public class CatalogController {
         Catalog updatedScore= catalogService.changeScore(dto);
         return ResponseEntity.ok(updatedScore);
     }
+
+    @GetMapping("/getByGenre")
+    public ResponseEntity<?> getByGenre(@RequestBody List<Genre> genres){
+        List<Catalog> list= catalogService.findByGenre(genres);
+        return ResponseEntity.ok(list);
+    }
+
+
 
 
 

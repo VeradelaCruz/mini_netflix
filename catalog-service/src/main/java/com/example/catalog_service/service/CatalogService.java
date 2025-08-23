@@ -2,6 +2,7 @@ package com.example.catalog_service.service;
 
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
+import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.exception.MovieNotFound;
 import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.mapper.CatalogMapper;
@@ -10,7 +11,10 @@ import com.example.catalog_service.repository.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CatalogService {
@@ -71,7 +75,12 @@ public class CatalogService {
         return catalogRepository.save(catalog);
     }
 
-
-
-
+    //Filter by genre
+    public List<Catalog> findByGenre(List<Genre> genres) {
+        Set<Genre> genreSet = new HashSet<>(genres); // Para optimizar contains}
+        return findAllMovies().stream()
+                //Solo mantenemos las películas cuyo género está en la lista genres
+                .filter(catalog -> genreSet.contains(catalog.getGenre()))
+                .collect(Collectors.toList());
+    }
 }

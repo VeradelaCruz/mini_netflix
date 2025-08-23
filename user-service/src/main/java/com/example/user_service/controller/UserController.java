@@ -63,7 +63,7 @@ public class UserController {
         List<User> users = userService.findUserByPreferences(preferences);
         return ResponseEntity.ok(users);
     }
-    
+
     @GetMapping("/count-by-roles")
     public ResponseEntity<List<UserRoleDTO>> countUsersByRoles() {
         List<UserRoleDTO> result = userService.countUsersByRoles();
