@@ -11,6 +11,7 @@ import com.example.catalog_service.repository.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,5 +83,16 @@ public class CatalogService {
                 //Solo mantenemos las películas cuyo género está en la lista genres
                 .filter(catalog -> genreSet.contains(catalog.getGenre()))
                 .collect(Collectors.toList());
+    }
+
+    //Find Top 3 movies with better rating:
+    public List<Catalog> findTop3(){
+     return findAllMovies().stream()
+             //Ordena las películas por ratingAverage de mayor a menor.
+             //.reversed() invierte el orden natural (que sería de menor a mayor).
+             .sorted(Comparator.comparingDouble(Catalog::getRatingAverage).reversed())
+             // Take first 3
+             .limit(3)
+             .collect(Collectors.toList());
     }
 }

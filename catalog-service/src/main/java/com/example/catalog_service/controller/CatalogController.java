@@ -68,6 +68,12 @@ public class CatalogController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/getTopThree")
+    public ResponseEntity<?> getTopThee(){
+        List<Catalog> list= catalogService.findTop3();
+        return ResponseEntity.ok(list);
+    }
+
 
 
 
