@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.mongodb.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
@@ -172,7 +173,21 @@ public class CatalogServiceIntegTest {
         assertEquals("Movie with id: 999L not found.", exception.getMessage());
     }
 
-    
+    @Test
+    @DisplayName("Should return a movie by title, if exists")
+    void findByTitle_ShouldReturnAMovie(){
+        catalogRepository.save(catalog1);
+
+        Catalog catalog = catalogService.findByTitle(catalog1.getTitle());
+
+        assertNotNull(catalog);
+        assertEquals("Title1", catalog.getTitle());
+
+        Catalog result= catalogRepository.findByTitle(catalog1.getTitle())
+                        .get();
+        assertEquals(catalog.getTitle(),result.getTitle());
+
+    }
 
 
 
