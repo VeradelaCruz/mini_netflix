@@ -21,6 +21,7 @@ import java.util.List;
 
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -113,4 +114,18 @@ public class CatalogControllerIntegTest {
                 .andExpect(jsonPath("$[1].title").value("Title2"));
 
     }
+    @Test
+    @DisplayName("Should get all movies via GET endpoint")
+    void getAll_ShouldReturnAList() throws Exception {
+        catalogRepository.saveAll(list);
+
+        mockMvc.perform(get("/catalog/getAll")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(list.size()))
+                .andExpect(jsonPath("$[0].movieId").value("1L"))
+                .andExpect(jsonPath("$[1].movieId").value("2L"))
+                .andExpect(jsonPath("$[2].movieId").value("3L"));
+    }
+
 }
