@@ -162,6 +162,18 @@ public class CatalogServiceIntegTest {
         assertFalse(catalogRepository.existsById(catalog1.getMovieId()));
     }
 
+    @Test
+    @DisplayName("Should return exception")
+    void removeCatalog_ShouldReturnAnException(){
+        MovieNotFound exception =
+                assertThrows(MovieNotFound.class,
+        () -> catalogService.findMovieById("999L"));
+
+        assertEquals("Movie with id: 999L not found.", exception.getMessage());
+    }
+
+    
+
 
 
 }
