@@ -4,6 +4,7 @@ import com.example.catalog_service.dtos.CatalogDTO;
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
+import com.example.catalog_service.exception.GenreNotFoundException;
 import com.example.catalog_service.exception.MovieNotFound;
 import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.mapper.CatalogMapper;
@@ -103,7 +104,7 @@ public class CatalogService {
                 .toList();
 
         if (filtered.isEmpty()) {
-            throw new GenreNotFoundException("No movies found for genre: " + genre);
+            throw new GenreNotFoundException(genre);
         }
 
         return filtered.stream()
