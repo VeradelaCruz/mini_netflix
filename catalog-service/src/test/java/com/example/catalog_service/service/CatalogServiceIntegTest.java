@@ -3,6 +3,7 @@ package com.example.catalog_service.service;
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.exception.MovieNotFound;
+import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.mapper.CatalogMapper;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
@@ -189,6 +190,14 @@ public class CatalogServiceIntegTest {
 
     }
 
+    @Test
+    @DisplayName("Should return an exception")
+    void findTitle_ShouldReturnException(){
+        MovieNotFoundByName exception = assertThrows(MovieNotFoundByName.class,
+                ()->catalogService.findByTitle("Title99"));
+
+                assertEquals("Movie with title: Title99 could not be found.", exception.getMessage());
+    }
 
 
 }
