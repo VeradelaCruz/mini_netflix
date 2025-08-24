@@ -161,12 +161,12 @@ public class CatalogRepositoryIntegTest {
 
     @Test
     @DisplayName("Should delete a movie by ID")
-    void deleteById() {
+    void deleteById_ShouldReturnVoid() {
         catalogRepository.save(catalog1);
-        catalogRepository.deleteById("1L");
-        assertTrue(catalogRepository.findById("1L").isEmpty());
+        catalogRepository.deleteById(catalog1.getMovieId());
+        assertTrue(catalogRepository.findById(catalog1.getMovieId()).isEmpty());
     }
-
+    
 
 
 }
