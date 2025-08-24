@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -126,6 +127,23 @@ public class CatalogControllerIntegTest {
                 .andExpect(jsonPath("$[0].movieId").value("1L"))
                 .andExpect(jsonPath("$[1].movieId").value("2L"))
                 .andExpect(jsonPath("$[2].movieId").value("3L"));
+    }
+
+    @Test
+    @DisplayName("Should return catalog by ID via GET endpoint")
+    void getById_ShouldReturnCatalog() throws Exception {
+        // Preparar datos en la base de datos en memoria
+        catalogRepository.saveAll(list);
+
+        // Crear el DTO que se enviará como RequestBody
+        String requestBody = objectMapper.writeValueAsString(ratingScoreDTO);
+
+        mockMvc.perform(get("/catalog/id")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.movieId").value("1L"))
+                .andExpect(jsonPath("$.title").value("Title1"));
     }
 
 }
