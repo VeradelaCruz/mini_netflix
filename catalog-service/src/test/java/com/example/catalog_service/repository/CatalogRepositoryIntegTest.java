@@ -129,7 +129,15 @@ public class CatalogRepositoryIntegTest {
     @Test
     @DisplayName("Should find all movies")
     void findAllMovies_ShouldReturnAList(){
+        //Simulamos el service:
+        catalogRepository.saveAll(list);
+        //Verificamos que lo guardara y que funciona:
+        List<Catalog> catalogList= catalogRepository.findAll();
 
+        //Comparar:
+        assertNotNull(catalogList);
+        assertEquals(3, catalogList.size());
+        
     }
 
 
