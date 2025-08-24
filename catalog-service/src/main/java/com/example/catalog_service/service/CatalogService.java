@@ -97,9 +97,16 @@ public class CatalogService {
 
     //Group movies by genre
     public Map<Genre, List<CatalogDTO>> groupByGenre(Genre genre){
-        return findAllMovies().stream()
+        List<CatalogDTO> filtered = findAllMovies().stream()
                 .filter(movie -> movie.getGenre().equals(genre))
-                .map(catalog -> new CatalogDTO(catalog))
+                .map(CatalogDTO::new)
+                .toList();
+
+        if (filtered.isEmpty()) {
+            throw new GenreNotFoundException("No movies found for genre: " + genre);
+        }
+
+        return filtered.stream()
                 .collect(Collectors.groupingBy(CatalogDTO::getGenre));
     }
 }

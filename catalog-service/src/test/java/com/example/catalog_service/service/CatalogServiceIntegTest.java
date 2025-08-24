@@ -270,6 +270,18 @@ public class CatalogServiceIntegTest {
         assertEquals(3.9, catalogs.get(2).getRatingAverage());
     }
 
+    ////Group movies by genre
+    //    public Map<Genre, List<CatalogDTO>> groupByGenre(Genre genre){
+    //        return findAllMovies().stream()
+    //                .filter(movie -> movie.getGenre().equals(genre))
+    //                .map(catalog -> new CatalogDTO(catalog))
+    //                .collect(Collectors.groupingBy(CatalogDTO::getGenre));
+    //    }
+
+    @Test
+    @DisplayName("Should group movies by genre")
+    void groupByGenre_ShouldReturn
+
 }
 
 
