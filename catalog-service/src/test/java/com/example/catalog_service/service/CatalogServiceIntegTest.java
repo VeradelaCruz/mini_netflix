@@ -41,6 +41,7 @@ public class CatalogServiceIntegTest {
     private List<Catalog> list;
     private CatalogUpdateDto catalogUpdateDto;
     private RatingScoreDTO ratingScoreDTO;
+    private List<Genre> genres;
 
     @BeforeEach
     void setUp() {
@@ -74,6 +75,7 @@ public class CatalogServiceIntegTest {
         ratingScoreDTO.setMovieId("4L");
         ratingScoreDTO.setRatingAverage(4.5);
 
+        List<Genre> genres= List.of(Genre.ACTION, Genre.ANIMATION,Genre.COMEDY);
     }
 
     @Test
@@ -205,14 +207,6 @@ public class CatalogServiceIntegTest {
     }
 
 
-
-    //  //Update score:
-    //    public Catalog changeScore(RatingScoreDTO dto){
-    //        Catalog catalog= findMovieById(dto.getMovieId());
-    //        catalog.setRatingAverage(dto.getRatingAverage());
-    //        return catalogRepository.save(catalog);
-    //    }
-
     @Test
     @DisplayName("Should update ratingScore and persist the change in DB")
     void changeScore_ShouldUpdateAndPersistRatingScore() {
@@ -228,6 +222,24 @@ public class CatalogServiceIntegTest {
         assertEquals("1L", result.getMovieId());
     }
 
+    
+
+    @Test
+    @DisplayName("Should find a list of movies by genre")
+    void findByGenre_ShouldReturnList(){
+        catalogRepository.saveAll(list);
+
+        List<Catalog> catalogList= catalogService.findByGenre(genres);
+
+        assertNotNull(catalogList);
+        assertEquals(2, catalogList.size());
+
+        //Cuando guardas con saveAll(list) en MongoDB,
+        // el orden de recuperación no está garantizado a menos que hagas un sort
+        //Asi no dependes del orden:
+        assertTrue(catalogList.stream().anyMatch(c -> c.getGenre() == Genre.ACTION));
+        assertTrue(catalogList.stream().anyMatch(c -> c.getGenre() == Genre.ANIMATION));
+    }
 
 }
 
