@@ -152,6 +152,17 @@ public class CatalogServiceIntegTest {
         assertEquals(catalogUpdateDto.getRatingAverage(), catalogUpdate.getRatingAverage());
 
     }
+    @Test
+    @DisplayName("Should remove movie by ID")
+    void removeCatalog_ShouldRemoveMovie() {
+        catalogRepository.save(catalog1);
+
+        catalogService.removeMovieById(catalog1.getMovieId());
+
+        assertFalse(catalogRepository.existsById(catalog1.getMovieId()));
+    }
+
+
 
 }
 
