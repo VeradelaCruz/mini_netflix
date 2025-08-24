@@ -137,10 +137,30 @@ public class CatalogRepositoryIntegTest {
         //Comparar:
         assertNotNull(catalogList);
         assertEquals(3, catalogList.size());
+
+    }
+
+    @Test
+    @DisplayName("Should find a movie by title")
+    void findByTitle_ShouldReturnAMovie() {
+        catalogRepository.save(catalog1);
+        Catalog found = catalogRepository.findByTitle(catalog1.getTitle()).get();
+        assertEquals("1L", found.getMovieId());
+    }
+
+    @Test
+    @DisplayName("Should return an exception")
+    void findMovieByTitle_ShouldReturnAnException(){
         
     }
 
-
+    @Test
+    @DisplayName("Should delete a movie by ID")
+    void deleteById() {
+        catalogRepository.save(catalog1);
+        catalogRepository.deleteById("1L");
+        assertTrue(catalogRepository.findById("1L").isEmpty());
+    }
 
 
 
