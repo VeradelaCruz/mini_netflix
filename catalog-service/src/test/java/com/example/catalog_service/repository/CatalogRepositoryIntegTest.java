@@ -4,6 +4,7 @@ import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.exception.MovieNotFound;
+import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.mapper.CatalogMapper;
 import com.example.catalog_service.models.Catalog;
 import org.junit.jupiter.api.BeforeEach;
@@ -151,7 +152,11 @@ public class CatalogRepositoryIntegTest {
     @Test
     @DisplayName("Should return an exception")
     void findMovieByTitle_ShouldReturnAnException(){
-        
+        MovieNotFoundByName exception= assertThrows(MovieNotFoundByName.class,
+                ()-> catalogRepository.findByTitle("Title00")
+                        .orElseThrow(() -> new MovieNotFoundByName("Title00")));
+
+        assertEquals("Movie with title: Title00 could not be found.", exception.getMessage());
     }
 
     @Test
