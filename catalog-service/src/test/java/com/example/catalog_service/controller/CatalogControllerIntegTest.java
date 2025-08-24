@@ -6,24 +6,42 @@ import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
 import com.example.catalog_service.service.CatalogService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
         "eureka.client.enabled=false"
 })
 @ActiveProfiles("test")
+@AutoConfigureMockMvc
 public class CatalogControllerIntegTest {
     @Autowired
     private CatalogService catalogService;
 
     @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
     private CatalogRepository catalogRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Catalog catalog1;
     private Catalog catalog2;
@@ -79,5 +97,20 @@ public class CatalogControllerIntegTest {
 
     }
 
-    
+
+    @Test
+    @DisplayName("Should create movies via POST endpoint")
+    void addMovie_ShouldReturnCreatedList() throws Exception {
+        String requestBody = objectMapper.writeValueAsString(list);
+
+        mockMvc.perform(post("/catalog/addMovie")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].movieId").value("1L"))
+                .andExpect(jsonPath("$[1].movieId").value("2L"))
+                .andExpect(jsonPath("$[0].title").value("Title1"))
+                .andExpect(jsonPath("$[1].title").value("Title2"));
+
+    }
 }
