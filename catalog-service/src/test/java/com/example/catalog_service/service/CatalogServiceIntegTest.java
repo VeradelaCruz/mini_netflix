@@ -1,6 +1,7 @@
 package com.example.catalog_service.service;
 
 import com.example.catalog_service.dtos.CatalogUpdateDto;
+import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
 import com.example.catalog_service.exception.MovieNotFound;
 import com.example.catalog_service.exception.MovieNotFoundByName;
@@ -15,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.mongodb.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,6 +40,7 @@ public class CatalogServiceIntegTest {
     private Catalog catalog2;
     private List<Catalog> list;
     private CatalogUpdateDto catalogUpdateDto;
+    private RatingScoreDTO ratingScoreDTO;
 
     @BeforeEach
     void setUp() {
@@ -69,6 +70,10 @@ public class CatalogServiceIntegTest {
         catalogUpdateDto.setReleaseYear(1992);
         catalogUpdateDto.setDescription("-----");
         catalogUpdateDto.setRatingAverage(4.5);
+
+        ratingScoreDTO.setMovieId("4L");
+        ratingScoreDTO.setRatingAverage(4.5);
+
     }
 
     @Test
@@ -197,6 +202,30 @@ public class CatalogServiceIntegTest {
                 ()->catalogService.findByTitle("Title99"));
 
                 assertEquals("Movie with title: Title99 could not be found.", exception.getMessage());
+    }
+
+
+
+    //  //Update score:
+    //    public Catalog changeScore(RatingScoreDTO dto){
+    //        Catalog catalog= findMovieById(dto.getMovieId());
+    //        catalog.setRatingAverage(dto.getRatingAverage());
+    //        return catalogRepository.save(catalog);
+    //    }
+
+    @Test
+    @DisplayName("Should update ratingScore and persist the change in DB")
+    void changeScore_ShouldUpdateAndPersistRatingScore() {
+        catalogRepository.save(catalog1);
+
+        catalogService.changeScore(ratingScoreDTO);
+
+        // Recuperar de DB para verificar persistencia
+        Catalog result = catalogRepository.findById("1L")
+                .orElseThrow(() -> new RuntimeException("Catalog not found"));
+
+        assertEquals(4.5, result.getRatingAverage());
+        assertEquals("1L", result.getMovieId());
     }
 
 
