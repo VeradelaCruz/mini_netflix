@@ -38,6 +38,7 @@ public class CatalogServiceIntegTest {
 
     private Catalog catalog1;
     private Catalog catalog2;
+    private Catalog catalog3;
     private List<Catalog> list;
     private CatalogUpdateDto catalogUpdateDto;
     private RatingScoreDTO ratingScoreDTO;
@@ -63,19 +64,29 @@ public class CatalogServiceIntegTest {
         catalog2.setDescription("-----");
         catalog2.setRatingAverage(4.3);
 
-        list = List.of(catalog1, catalog2);
+        catalog3 = new Catalog();
+        catalog3.setMovieId("3L");
+        catalog3.setTitle("Title3");
+        catalog3.setGenre(Genre.COMEDY);
+        catalog3.setReleaseYear(1990);
+        catalog3.setDescription("-----");
+        catalog3.setRatingAverage(3.9);
+
+        list = List.of(catalog1, catalog2, catalog3);
 
         catalogUpdateDto= new CatalogUpdateDto();
-        catalogUpdateDto.setTitle("Title3");
+        catalogUpdateDto.setTitle("Title4");
         catalogUpdateDto.setGenre("ACTION");
         catalogUpdateDto.setReleaseYear(1992);
         catalogUpdateDto.setDescription("-----");
         catalogUpdateDto.setRatingAverage(4.5);
 
-        ratingScoreDTO.setMovieId("4L");
+
+        ratingScoreDTO = new RatingScoreDTO();
+        ratingScoreDTO.setMovieId("1L");
         ratingScoreDTO.setRatingAverage(4.5);
 
-        List<Genre> genres= List.of(Genre.ACTION, Genre.ANIMATION,Genre.COMEDY);
+        genres= List.of(Genre.ACTION, Genre.ANIMATION,Genre.COMEDY);
     }
 
     @Test
@@ -222,7 +233,7 @@ public class CatalogServiceIntegTest {
         assertEquals("1L", result.getMovieId());
     }
 
-    
+
 
     @Test
     @DisplayName("Should find a list of movies by genre")
@@ -232,13 +243,31 @@ public class CatalogServiceIntegTest {
         List<Catalog> catalogList= catalogService.findByGenre(genres);
 
         assertNotNull(catalogList);
-        assertEquals(2, catalogList.size());
+        assertEquals(3, catalogList.size());
 
         //Cuando guardas con saveAll(list) en MongoDB,
         // el orden de recuperación no está garantizado a menos que hagas un sort
         //Asi no dependes del orden:
         assertTrue(catalogList.stream().anyMatch(c -> c.getGenre() == Genre.ACTION));
         assertTrue(catalogList.stream().anyMatch(c -> c.getGenre() == Genre.ANIMATION));
+    }
+
+
+    @Test
+    @DisplayName("Should return a list with the top 3 from catalog")
+    void  findTop3_ShouldReturnList(){
+        catalogRepository.saveAll(list);
+
+        List<Catalog> catalogs= catalogService.findTop3();
+
+
+        assertNotNull(catalogs);
+        assertEquals(3, catalogs.size());
+
+        // Verifica que estén en orden descendente por ratingAverage
+        assertEquals(4.4, catalogs.get(0).getRatingAverage());
+        assertEquals(4.3, catalogs.get(1).getRatingAverage());
+        assertEquals(3.9, catalogs.get(2).getRatingAverage());
     }
 
 }

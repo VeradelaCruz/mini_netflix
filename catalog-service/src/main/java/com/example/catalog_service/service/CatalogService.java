@@ -73,7 +73,8 @@ public class CatalogService {
         catalog.setRatingAverage(dto.getRatingAverage());
         return catalogRepository.save(catalog);
     }
-
+//ARREGLAR PARA VERIFICAR SI LOS GENEROS INTRODUCIDOS EXISTEN
+    //MANEJO DE ERRORES:
     //Filter by genre
     public List<Catalog> findByGenre(List<Genre> genres) {
         Set<Genre> genreSet = new HashSet<>(genres); // Para optimizar contains}
