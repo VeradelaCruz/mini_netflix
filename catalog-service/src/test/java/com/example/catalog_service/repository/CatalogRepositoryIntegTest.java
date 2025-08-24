@@ -34,9 +34,6 @@ public class CatalogRepositoryIntegTest {
     private Catalog catalog2;
     private Catalog catalog3;
     private List<Catalog> list;
-    private CatalogUpdateDto catalogUpdateDto;
-    private RatingScoreDTO ratingScoreDTO;
-    private List<Genre> genres;
 
     @BeforeEach
     void setUp() {
@@ -67,20 +64,6 @@ public class CatalogRepositoryIntegTest {
         catalog3.setRatingAverage(3.9);
 
         list = List.of(catalog1, catalog2, catalog3);
-
-        catalogUpdateDto= new CatalogUpdateDto();
-        catalogUpdateDto.setTitle("Title4");
-        catalogUpdateDto.setGenre("ACTION");
-        catalogUpdateDto.setReleaseYear(1992);
-        catalogUpdateDto.setDescription("-----");
-        catalogUpdateDto.setRatingAverage(4.5);
-
-
-        ratingScoreDTO = new RatingScoreDTO();
-        ratingScoreDTO.setMovieId("1L");
-        ratingScoreDTO.setRatingAverage(4.5);
-
-        genres= List.of(Genre.ACTION, Genre.ANIMATION,Genre.COMEDY);
 
     }
 
@@ -166,7 +149,7 @@ public class CatalogRepositoryIntegTest {
         catalogRepository.deleteById(catalog1.getMovieId());
         assertTrue(catalogRepository.findById(catalog1.getMovieId()).isEmpty());
     }
-    
+
 
 
 }

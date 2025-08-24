@@ -1,0 +1,83 @@
+package com.example.catalog_service.controller;
+
+import com.example.catalog_service.dtos.CatalogUpdateDto;
+import com.example.catalog_service.dtos.RatingScoreDTO;
+import com.example.catalog_service.enums.Genre;
+import com.example.catalog_service.models.Catalog;
+import com.example.catalog_service.repository.CatalogRepository;
+import com.example.catalog_service.service.CatalogService;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
+
+@SpringBootTest(properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false"
+})
+@ActiveProfiles("test")
+public class CatalogControllerIntegTest {
+    @Autowired
+    private CatalogService catalogService;
+
+    @Autowired
+    private CatalogRepository catalogRepository;
+
+    private Catalog catalog1;
+    private Catalog catalog2;
+    private Catalog catalog3;
+    private List<Catalog> list;
+    private CatalogUpdateDto catalogUpdateDto;
+    private RatingScoreDTO ratingScoreDTO;
+    private List<Genre> genres;
+
+    @BeforeEach
+    void setUp() {
+        catalogRepository.deleteAll();
+
+        catalog1 = new Catalog();
+        catalog1.setMovieId("1L");
+        catalog1.setTitle("Title1");
+        catalog1.setGenre(Genre.ANIMATION);
+        catalog1.setReleaseYear(1990);
+        catalog1.setDescription("-----");
+        catalog1.setRatingAverage(4.4);
+
+        catalog2 = new Catalog();
+        catalog2.setMovieId("2L");
+        catalog2.setTitle("Title2");
+        catalog2.setGenre(Genre.ACTION);
+        catalog2.setReleaseYear(1991);
+        catalog2.setDescription("-----");
+        catalog2.setRatingAverage(4.3);
+
+        catalog3 = new Catalog();
+        catalog3.setMovieId("3L");
+        catalog3.setTitle("Title3");
+        catalog3.setGenre(Genre.COMEDY);
+        catalog3.setReleaseYear(1990);
+        catalog3.setDescription("-----");
+        catalog3.setRatingAverage(3.9);
+
+        list = List.of(catalog1, catalog2, catalog3);
+
+        catalogUpdateDto= new CatalogUpdateDto();
+        catalogUpdateDto.setTitle("Title4");
+        catalogUpdateDto.setGenre("ACTION");
+        catalogUpdateDto.setReleaseYear(1992);
+        catalogUpdateDto.setDescription("-----");
+        catalogUpdateDto.setRatingAverage(4.5);
+
+
+        ratingScoreDTO = new RatingScoreDTO();
+        ratingScoreDTO.setMovieId("1L");
+        ratingScoreDTO.setRatingAverage(4.5);
+
+        genres= List.of(Genre.ACTION, Genre.ANIMATION,Genre.COMEDY);
+
+    }
+
+    
+}
