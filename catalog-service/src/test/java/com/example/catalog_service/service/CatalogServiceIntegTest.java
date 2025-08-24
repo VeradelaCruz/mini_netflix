@@ -1,5 +1,6 @@
 package com.example.catalog_service.service;
 
+import com.example.catalog_service.dtos.CatalogDTO;
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.mongodb.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,6 +89,7 @@ public class CatalogServiceIntegTest {
         ratingScoreDTO.setRatingAverage(4.5);
 
         genres= List.of(Genre.ACTION, Genre.ANIMATION,Genre.COMEDY);
+
     }
 
     @Test
@@ -270,17 +273,24 @@ public class CatalogServiceIntegTest {
         assertEquals(3.9, catalogs.get(2).getRatingAverage());
     }
 
-    ////Group movies by genre
-    //    public Map<Genre, List<CatalogDTO>> groupByGenre(Genre genre){
-    //        return findAllMovies().stream()
-    //                .filter(movie -> movie.getGenre().equals(genre))
-    //                .map(catalog -> new CatalogDTO(catalog))
-    //                .collect(Collectors.groupingBy(CatalogDTO::getGenre));
-    //    }
 
     @Test
     @DisplayName("Should group movies by genre")
-    void groupByGenre_ShouldReturn
+    void groupByGenre_ShouldReturnAList(){
+        catalogRepository.saveAll(list);
+
+        Map<Genre, List<CatalogDTO>> result = catalogService.groupByGenre(Genre.ACTION);
+
+        assertNotNull(result);
+        assertTrue(result.containsKey(Genre.ACTION));
+
+        List<CatalogDTO> actionMovies = result.get(Genre.ACTION);
+        assertEquals(1, actionMovies.size());
+        //Verifica que la primera (y en este caso única)
+        // película de la lista tenga efectivamente el género ACTION.
+        assertEquals(Genre.ACTION, actionMovies.get(0).getGenre());
+        assertEquals(catalog2.getMovieId(), actionMovies.get(0).getMovieId());
+    }
 
 }
 

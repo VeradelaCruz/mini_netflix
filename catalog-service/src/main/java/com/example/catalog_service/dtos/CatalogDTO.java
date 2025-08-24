@@ -16,6 +16,7 @@ public class CatalogDTO {
         this.genre = catalog.getGenre();
     }
 
+
     public String getMovieId() {
         return movieId;
     }
