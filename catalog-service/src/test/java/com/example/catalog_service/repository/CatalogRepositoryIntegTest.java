@@ -3,6 +3,7 @@ package com.example.catalog_service.repository;
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
+import com.example.catalog_service.exception.MovieNotFound;
 import com.example.catalog_service.mapper.CatalogMapper;
 import com.example.catalog_service.models.Catalog;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -114,7 +114,23 @@ public class CatalogRepositoryIntegTest {
         //Verifico valores:
         assertEquals("1L", catalog.getMovieId());
     }
+    @Test
+    @DisplayName("Should return an exception")
+    void findMovieById_ShouldReturnAnException(){
+        MovieNotFound exception= assertThrows(MovieNotFound.class,
+                //El repositorio devuelve un Optional.
+                // La excepción solo se lanza si vos usás .orElseThrow
+                ()-> catalogRepository.findById("99L")
+                        .orElseThrow(()->new MovieNotFound("99L")));
 
+        assertEquals("Movie with id: 99L not found.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should find all movies")
+    void findAllMovies_ShouldReturnAList(){
+
+    }
 
 
 
