@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -161,5 +162,17 @@ public class CatalogControllerIntegTest {
                 .andExpect(jsonPath("$.ratingAverage"). value(4.5))
                 .andExpect(jsonPath("$.releaseYear").value(1992));
 
+    }
+
+    @Test
+    @DisplayName("Should remove a movie")
+    void deleteMovie_ShouldReturnOk() throws Exception{
+        catalogRepository.saveAll(list);
+
+        mockMvc.perform(delete("/catalog/delete/{movieId}", catalog1.getMovieId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+        // Verificamos que realmente se eliminó de la base de datos
+        assertFalse(catalogRepository.existsById(catalog1.getMovieId()));
     }
 }
