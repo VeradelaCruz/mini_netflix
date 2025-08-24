@@ -20,9 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -146,4 +144,22 @@ public class CatalogControllerIntegTest {
                 .andExpect(jsonPath("$.title").value("Title1"));
     }
 
+    @Test
+    @DisplayName("Should update a movie")
+    void updateCatalog_ShouldReturnAMovieUpdated() throws Exception {
+        catalogRepository.saveAll(list);
+        String requestBody= objectMapper.writeValueAsString(catalogUpdateDto);
+
+        mockMvc.perform(put("/catalog/update/{movieId}", catalog1.getMovieId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.movieId").value("1L"))
+                .andExpect(jsonPath("$.title").value("Title4"))
+                .andExpect(jsonPath("$.genre").value("ACTION"))
+                .andExpect(jsonPath("$.description").value("-----"))
+                .andExpect(jsonPath("$.ratingAverage"). value(4.5))
+                .andExpect(jsonPath("$.releaseYear").value(1992));
+
+    }
 }
