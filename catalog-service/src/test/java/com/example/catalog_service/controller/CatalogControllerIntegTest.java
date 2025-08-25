@@ -175,4 +175,11 @@ public class CatalogControllerIntegTest {
         // Verificamos que realmente se eliminó de la base de datos
         assertFalse(catalogRepository.existsById(catalog1.getMovieId()));
     }
+    @Test
+    @DisplayName("Should return 404 when deleting a non-existing movie")
+    void deleteMovie_NonExisting_ShouldReturnNotFound() throws Exception {
+        mockMvc.perform(delete("/catalog/delete/{movieId}", "999L")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
 }

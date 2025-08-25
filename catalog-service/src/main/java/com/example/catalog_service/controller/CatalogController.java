@@ -4,10 +4,12 @@ import com.example.catalog_service.dtos.CatalogDTO;
 import com.example.catalog_service.dtos.CatalogUpdateDto;
 import com.example.catalog_service.dtos.RatingScoreDTO;
 import com.example.catalog_service.enums.Genre;
+import com.example.catalog_service.exception.MovieNotFound;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.service.CatalogService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,9 +50,15 @@ public class CatalogController {
 
     @DeleteMapping("/delete/{movieId}")
     public ResponseEntity<?> deleteMovie(@PathVariable String movieId){
-        catalogService.removeMovieById(movieId);
-        return ResponseEntity.noContent().build();
+        try {
+            catalogService.removeMovieById(movieId);
+            return ResponseEntity.noContent().build();
+        } catch (MovieNotFound ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", ex.getMessage()));
+        }
     }
+
 
     @GetMapping("/byTitle/{title}")
     public ResponseEntity<Catalog> getByTitle(@PathVariable String title){
