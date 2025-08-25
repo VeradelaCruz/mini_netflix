@@ -16,3 +16,26 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      recommendationServiceCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        recordExceptions:
+          - feign.FeignException
+          - java.net.ConnectException
+          - java.lang.Exception
+
+
+feign:
+  client:
+    config:
+      default:
+        retryer:
+          period: 0
+          maxPeriod: 0
+          maxAttempts: 1

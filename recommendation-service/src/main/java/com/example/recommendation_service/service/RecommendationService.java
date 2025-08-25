@@ -8,6 +8,8 @@ import com.example.recommendation_service.exception.MovieNotFoundException;
 import com.example.recommendation_service.exception.UserNotFoundException;
 import com.example.recommendation_service.models.Recommendation;
 import com.example.recommendation_service.repository.RecommendationRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class RecommendationService {
     @Autowired
     private RecommendationRepository recommendationRepository;
@@ -62,8 +65,9 @@ public class RecommendationService {
                 .collect(Collectors.toList());
     }
 
-    //Assign movies to a user based on preferences:
-
+    //Assign movies to a user based on preferences with Circuit Breaker
+    @CircuitBreaker(name = "recommendationServiceCB",
+            fallbackMethod = "fallbackCreateRecommendation")
     public List<Recommendation> createRecommendation(){
         //Get all user's preferences
         List<UserDTO> users= userClient.getAllUsers();
@@ -95,6 +99,14 @@ public class RecommendationService {
             return recommendationRepository.save(recommendation);
         }).collect(Collectors.toList());
     }
+
+    // Fallback method para cuando algo falla
+    public List<Recommendation> fallbackCreateRecommendation(Throwable t) {
+        // Devuelve lista vacía o mensaje de error controlado
+        System.out.println("CircuitBreaker activated: " + t.getMessage());
+        return Collections.emptyList();
+    }
+
 
     // Filter recommended movies by minimum score
     public List<CatalogDTO> findRecommendationByScore(double minScore) {
