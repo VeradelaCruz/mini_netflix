@@ -1,5 +1,8 @@
 package com.example.rating_service.service;
 
+import com.example.rating_service.client.CatalogClient;
+import com.example.rating_service.dtos.RatingAverageDTO;
+import com.example.rating_service.dtos.RatingUserDTO;
 import com.example.rating_service.enums.Score;
 import com.example.rating_service.mapper.RatingMapper;
 import com.example.rating_service.models.Rating;
@@ -9,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -16,7 +20,11 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -34,10 +42,16 @@ public class RatingServiceIntegTest {
     @Autowired
     private RatingMapper ratingMapper;
 
+    @MockBean
+    private CatalogClient catalogClient;
+
     private Rating rating1;
     private Rating rating2;
     private Rating rating3;
     private List<Rating> ratingList;
+    private RatingUserDTO ratingUserDTO;
+    private RatingAverageDTO ratingAverageDTO;
+
 
 
     @BeforeEach
@@ -70,6 +84,19 @@ public class RatingServiceIntegTest {
 
        ratingList= List.of(rating1, rating2, rating3);
 
+        //--- DTOS----
+       ratingUserDTO= new RatingUserDTO();
+       ratingUserDTO.setUserId("U4");
+       ratingUserDTO.setMovieId("C3");
+       ratingUserDTO.setComment("----");
+       ratingUserDTO.setScore(String.valueOf(Score.FOUR_STARS));
+
+       ratingAverageDTO= new RatingAverageDTO();
+       ratingAverageDTO.setMovieId("C3");
+       ratingAverageDTO.setTitle("Title1");
+       ratingAverageDTO.setDescription("----");
+       ratingAverageDTO.setAverageScore(3.5);
+
     }
 
     @Test
@@ -97,6 +124,39 @@ public class RatingServiceIntegTest {
         assertThrows(IllegalArgumentException.class, () -> {
             ratingService.createRating(null);
         });
+    }
+
+    @Test
+    @DisplayName("Should create a new rating from user and update score in catalog service")
+    void saveRatingAndUpdateCatalog_shouldReturnDTO(){
+        //Setup: Guardamos ratings previos en la base para simular datos existentes
+        ratingRepository.saveAll(List.of(rating1, rating2, rating3));
+
+        //Acción: Creamos un nuevo rating y actualizamos promedio
+        RatingAverageDTO ratingAverage= ratingService.saveRatingAndUpdateCatalog(ratingUserDTO);
+
+        // Verificar que se guardó el nuevo rating
+        List<Rating> ratings = ratingRepository.findByMovieId("C3");
+        assertThat(ratings).hasSize(2);
+
+        // Verificar cálculo del promedio
+        double expectedAverage = (5 + 4) / 2.0;
+        assertThat(ratingAverage.getAverageScore()).isEqualTo(expectedAverage);
+
+        // Verificamos que el mock del microservicio CatalogClient
+        // haya sido llamado exactamente una vez
+        verify(catalogClient, times(1))
+                // Verificamos que el metodo updateScore haya
+                // sido llamado con un argumento (DTO) que cumpla ciertas condiciones
+                .updateScore(
+                        argThat(dto ->
+                                // Condición 1: el movieId del DTO debe ser "C3"
+                                dto.getMovieId().equals("C3") &&
+                                        // Condición 2: el ratingAverage del DTO debe ser igual al promedio esperado calculado en la prueba
+                                        dto.getRatingAverage() == expectedAverage
+                        )
+                );
+
     }
 
 }
