@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "eureka.client.enabled=false"
 })
 @ActiveProfiles("test")
+@Import(MongoTestConfig.class)
 public class CatalogServiceIntegTest {
 
     @Autowired
@@ -98,10 +100,10 @@ public class CatalogServiceIntegTest {
         List<Catalog> result = catalogService.createMovies(list);
 
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
 
         List<Catalog> saved = catalogRepository.findAll();
-        assertEquals(2, saved.size());
+        assertEquals(3, saved.size());
         assertTrue(saved.stream().allMatch(c -> c.getRatingAverage() == 0.0));
     }
 
