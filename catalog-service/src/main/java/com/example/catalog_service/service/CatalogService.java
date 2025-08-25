@@ -11,6 +11,9 @@ import com.example.catalog_service.mapper.CatalogMapper;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,7 +25,12 @@ public class CatalogService {
  private CatalogRepository catalogRepository;
 
  //CRUD operations:
-    //Create a movie for the catalog
+    //value = "movies" → nombre del cache donde se guardará
+    //"allMovies" → el cache que guarda la lista completa de películas.
+    //allEntries → Significa que se borran todas las
+ // entradas de esos caches, no solo una clave específica.
+ @CacheEvict(value = {"movies", "allMovies"}, allEntries = true)
+ //Create a movie for the catalog
  public List<Catalog> createMovies(List<Catalog> catalogs){
      if(catalogs == null || catalogs.isEmpty()){
          throw new IllegalArgumentException("The catalog list cannot be empty");
@@ -34,17 +42,20 @@ public class CatalogService {
     }
 
     //Find a movie by movieId:
+    @Cacheable(value = "movies", key = "#movieId")
     public Catalog findMovieById(String movieId){
         return catalogRepository.findById(movieId)
                 .orElseThrow(() -> new MovieNotFound(movieId));
     }
 
     //Find all movies:
+    @Cacheable(value = "allMovies")
     public List<Catalog> findAllMovies(){
      return catalogRepository.findAll();
     }
 
     //Update a movie using mapper:
+    @CachePut(value = "movies", key = "#movieId")
     public Catalog changeCatalog(String movieId, CatalogUpdateDto catalogUpdateDto){
         Catalog updatedCatalog = findMovieById(movieId);
 
@@ -55,6 +66,7 @@ public class CatalogService {
 
 
     //Delete a movie
+    @CacheEvict(value = "movies", key = "#movieId")
     public void removeMovieById(String movieId){
      //Throws exception
         findMovieById(movieId);
@@ -63,12 +75,15 @@ public class CatalogService {
     }
 
     //Other CRUD operations:
+    @Cacheable(value = "moviesByTitle", key = "#title")
     public Catalog findByTitle(String title){
      return catalogRepository.findByTitle(title)
              .orElseThrow(()-> new MovieNotFoundByName(title));
     }
 
     //Update score:
+    @CachePut(value = "movies", key = "#dto.movieId")
+    @CacheEvict(value = "top3Movies", allEntries = true)
     public Catalog changeScore(RatingScoreDTO dto){
         Catalog catalog= findMovieById(dto.getMovieId());
         catalog.setRatingAverage(dto.getRatingAverage());
@@ -86,6 +101,7 @@ public class CatalogService {
     }
 
     //Find Top 3 movies with better rating:
+    @Cacheable(value = "top3Movies")
     public List<Catalog> findTop3(){
      return findAllMovies().stream()
              //Ordena las películas por ratingAverage de mayor a menor.
