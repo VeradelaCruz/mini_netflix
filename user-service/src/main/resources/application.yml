@@ -16,3 +16,14 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+resilience4j.circuitbreaker:
+  instances:
+    ratingService:
+      registerHealthIndicator: true
+      record-exceptions:
+        - feign.RetryableException
+      wait-duration-in-open-state: 5s
+      failure-rate-threshold: 50
+      ring-buffer-size-in-closed-state: 5
+

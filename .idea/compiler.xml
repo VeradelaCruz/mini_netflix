@@ -28,7 +28,7 @@
         </processorPath>
         <module name="recommendation-service" />
       </profile>
-      <profile name="Annotation profile for catalog-service" enabled="true">
+      <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -37,8 +37,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
         </processorPath>
         <module name="rating-service" />
-        <module name="catalog-service" />
         <module name="user-service" />
+        <module name="catalog-service" />
       </profile>
     </annotationProcessing>
   </component>

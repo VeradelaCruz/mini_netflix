@@ -2,7 +2,6 @@ package com.example.user_service.service;
 
 import com.example.user_service.client.CatalogClient;
 import com.example.user_service.client.RatingClient;
-import com.example.user_service.dtos.RatingScoreDTO;
 import com.example.user_service.dtos.RatingUserDTO;
 import com.example.user_service.dtos.UserDTO;
 import com.example.user_service.dtos.UserRoleDTO;
@@ -11,8 +10,10 @@ import com.example.user_service.exception.UserNotFoundException;
 import com.example.user_service.mapper.UserMapper;
 import com.example.user_service.models.User;
 import com.example.user_service.repository.UserRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import feign.RetryableException;
 
 
 import java.util.*;
@@ -72,9 +73,15 @@ public class UserService {
     }
 
     //Create a rating:
+    @CircuitBreaker(name = "ratingServiceCB",
+            fallbackMethod = "fallbackUpdateScore")
     public String sendRatingAndUpdateCatalog(RatingUserDTO ratingDTO) {
-        ratingClient.addAndCalculateAverage(ratingDTO);
-        return "Rating sent and average updated successfully.";
+            ratingClient.addAndCalculateAverage(ratingDTO);
+            return "Rating sent and average updated successfully.";
+    }
+
+    public void fallbackRating(RatingUserDTO ratingUserDTO, Throwable t) {
+        System.out.println("CircuitBreaker activado. No se pudo enviar rating: " + t.getMessage());
     }
 
 
@@ -90,7 +97,6 @@ public class UserService {
     }
 
     //Count users by role:
-    //Count users by role
     public List<UserRoleDTO> countUsersByRoles() {
         return findAll().stream()
                 // Agrupa los usuarios por rol

@@ -1,23 +1,26 @@
 spring:
+  application:
+    name: catalog-service
+
   data:
     mongodb:
-      uri: mongodb://localhost:27017/catalog1_db
+      uri: mongodb://localhost:27017/catalog_db
+
+  config:
+    import: optional:configserver:http://config-server:8888
+
   jpa:
     hibernate:
       ddl-auto: create-drop
 
+server:
+  port: 8081
+
 eureka:
   client:
-    enabled: false
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      movieServiceCB:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
 
 
