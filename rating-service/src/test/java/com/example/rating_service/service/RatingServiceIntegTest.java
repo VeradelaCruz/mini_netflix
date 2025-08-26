@@ -4,6 +4,8 @@ import com.example.rating_service.client.CatalogClient;
 import com.example.rating_service.dtos.RatingAverageDTO;
 import com.example.rating_service.dtos.RatingUserDTO;
 import com.example.rating_service.enums.Score;
+import com.example.rating_service.exception.MovieNotFoundById;
+import com.example.rating_service.exception.RatingNotFoundException;
 import com.example.rating_service.mapper.RatingMapper;
 import com.example.rating_service.models.Rating;
 import com.example.rating_service.repository.RatingRepository;
@@ -188,5 +190,15 @@ public class RatingServiceIntegTest {
         assertEquals("1L", result.getId());
         assertEquals("U1", result.getUserId());
     }
+
+    @Test
+    @DisplayName("Should return an exception if rating Id does not exist")
+    void  findById_ShouldReturnAnException(){
+        RatingNotFoundException exception= assertThrows(RatingNotFoundException.class,
+                ()-> ratingService.findById(rating1.getId()));
+
+        assertEquals("Rating with id: 1L not found.", exception.getMessage());
+    }
+    
 
 }
