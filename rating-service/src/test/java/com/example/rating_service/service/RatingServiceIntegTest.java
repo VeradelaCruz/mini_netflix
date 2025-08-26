@@ -159,4 +159,18 @@ public class RatingServiceIntegTest {
 
     }
 
+    @Test
+    @DisplayName("Should return a list of ratings")
+    void findAllRatings_ShouldReturnAList(){
+        ratingRepository.saveAll(ratingList);
+
+        List<Rating> list= ratingService.findAllRating();
+        assertNotNull(list);
+        assertEquals(3, list.size());
+
+        List<Rating> result= ratingRepository.findAll();
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
+
 }
