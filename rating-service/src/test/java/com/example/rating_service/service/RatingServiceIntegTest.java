@@ -173,4 +173,20 @@ public class RatingServiceIntegTest {
         assertEquals(3, result.size());
     }
 
+    @Test
+    @DisplayName("Should return a rating by id, if present")
+    void  findById_ShouldReturnRating(){
+        ratingRepository.saveAll(ratingList);
+
+        Rating rating= ratingService.findById(rating1.getId());
+        assertNotNull(rating);
+        assertEquals("1L", rating.getId());
+        assertEquals("U1", rating.getUserId());
+
+        Rating result= ratingRepository.findById(rating1.getId()).get();
+        assertNotNull(result);
+        assertEquals("1L", result.getId());
+        assertEquals("U1", result.getUserId());
+    }
+
 }
