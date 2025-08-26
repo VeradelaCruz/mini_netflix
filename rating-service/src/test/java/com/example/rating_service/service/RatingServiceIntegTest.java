@@ -1,6 +1,7 @@
 package com.example.rating_service.service;
 
 import com.example.rating_service.client.CatalogClient;
+import com.example.rating_service.dtos.CatalogDTO;
 import com.example.rating_service.dtos.RatingAverageDTO;
 import com.example.rating_service.dtos.RatingUserDTO;
 import com.example.rating_service.enums.Score;
@@ -12,6 +13,7 @@ import com.example.rating_service.repository.RatingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -53,6 +55,7 @@ public class RatingServiceIntegTest {
     private List<Rating> ratingList;
     private RatingUserDTO ratingUserDTO;
     private RatingAverageDTO ratingAverageDTO;
+    private CatalogDTO catalogDTO;
 
 
 
@@ -99,6 +102,13 @@ public class RatingServiceIntegTest {
        ratingAverageDTO.setDescription("----");
        ratingAverageDTO.setAverageScore(3.5);
 
+       catalogDTO= new CatalogDTO();
+       catalogDTO.setMovieId("C1");
+       catalogDTO.setTitle("Title");
+       catalogDTO.setDescription("----");
+       catalogDTO.setRatingAverage(3.5);
+//Mockear la respuesta del catalogClient para "C1", devolviendo un CatalogDTO válido.
+        Mockito.when(catalogClient.getById("C1")).thenReturn(catalogDTO);
     }
 
     @Test
@@ -199,6 +209,27 @@ public class RatingServiceIntegTest {
 
         assertEquals("Rating with id: 1L not found.", exception.getMessage());
     }
-    
+
+
+    @Test
+    @DisplayName("Should return a list by movie id")
+    void findByMovieId_ShouldReturnAList(){
+        //Guardamos ratings previos en la base para simular datos existentes
+        ratingRepository.saveAll(ratingList);
+
+        // Llamamos al metodo a probar, buscando por movieId "C1"
+        List<Rating> list = ratingService.findAllByMovieId("C1");
+        assertNotNull(list);
+        assertEquals(1, list.size());
+
+        // Comprobamos que todos los elementos tengan movieId igual a "C1"
+        assertTrue(list.stream().allMatch(r -> "C1".equals(r.getMovieId())));
+
+        // Verificamos que el mock del microservicio CatalogClient
+        // haya sido llamado exactamente una vez con un argumento
+        // cuyo movieId sea "C1"
+        verify(catalogClient, times(1))
+                .getById("C1");
+    }
 
 }
