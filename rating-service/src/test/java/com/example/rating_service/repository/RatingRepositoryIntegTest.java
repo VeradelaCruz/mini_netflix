@@ -95,4 +95,16 @@ public class RatingRepositoryIntegTest {
 
         assertEquals("1L", rating.getId());
     }
+
+    @Test
+    @DisplayName("Should return a list of rating by movieId")
+    void  findByMovieId_ShouldReturnAList(){
+        ratingRepository.saveAll(ratingList);
+
+        List<Rating> ratings= ratingRepository.findByMovieId(rating1.getMovieId());
+        assertNotNull(ratings);
+        assertEquals(1, ratings.size());
+        assertTrue(ratings.stream().allMatch(r -> r.getMovieId().equals("C1")));
+
+    }
 }
