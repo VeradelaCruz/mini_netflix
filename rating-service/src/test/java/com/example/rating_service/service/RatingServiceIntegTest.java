@@ -109,6 +109,9 @@ public class RatingServiceIntegTest {
        catalogDTO.setRatingAverage(3.5);
 //Mockear la respuesta del catalogClient para "C1", devolviendo un CatalogDTO válido.
         Mockito.when(catalogClient.getById("C1")).thenReturn(catalogDTO);
+//Mockear la excepcion del catalogClient para "C1", devolviendo un CatalogDTO válido.
+        Mockito.when(catalogClient.getById("C1")).thenReturn(null);
+
     }
 
     @Test
@@ -230,6 +233,17 @@ public class RatingServiceIntegTest {
         // cuyo movieId sea "C1"
         verify(catalogClient, times(1))
                 .getById("C1");
+    }
+
+    @Test
+    @DisplayName("Should throw MovieNotFoundById when movie does not exist (Integration Test)")
+    void findByMovieId_ShouldReturnException_WhenMovieNotFound(){
+        ratingRepository.saveAll(ratingList);
+
+        MovieNotFoundById exception= assertThrows(MovieNotFoundById.class,
+                ()->  ratingService.findAllByMovieId("C1"));
+
+        assertEquals("Movie with id: C1 not found.", exception.getMessage());
     }
 
 }
