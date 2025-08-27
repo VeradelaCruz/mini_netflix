@@ -9,6 +9,14 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/rating_db
 
+  redis:
+    host: localhost
+    port: 6379
+    password: ""  # si no tenés contraseña
+
+  cache:
+    type: redis   # indica que usaremos Redis como backend del cache
+
 server:
   port: 8082
 

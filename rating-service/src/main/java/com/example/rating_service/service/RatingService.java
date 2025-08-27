@@ -9,6 +9,8 @@ import com.example.rating_service.mapper.RatingMapper;
 import com.example.rating_service.models.Rating;
 import com.example.rating_service.repository.RatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,9 @@ public class RatingService {
 
     //Operation CRUD:
     //Create Ratings
+    @CacheEvict(value = {"ratings", "allRatings"}, allEntries = true)
+    //"ratings" → Es el caché que guarda resultados individuales de findById().
+    //"allRatings" → Es el caché que guarda la lista completa de findAllRating()
     public List<Rating> createRating(List<Rating> ratingList) {
         if (ratingList == null || ratingList.isEmpty()) {
             throw new IllegalArgumentException("The rating list cannot be empty");
@@ -32,6 +37,7 @@ public class RatingService {
     }
 
     //We create a new rating from user and update score in catalog service
+    @CacheEvict(value = {"ratings", "allRatings", "ratingsByMovie"}, allEntries = true)
     public RatingAverageDTO saveRatingAndUpdateCatalog(RatingUserDTO ratingDTO) {
         // Create rating
         Rating rating = new Rating();
@@ -66,16 +72,21 @@ public class RatingService {
 
 
     //Get all ratings:
+    @Cacheable(value = "allRatings")
     public List<Rating> findAllRating() {
         return ratingRepository.findAll();
     }
 
     //Get by rating id:
+    //value = "ratings" → Nombre del "espacio de caché" en Redis.
+    //key = "#id" → Cada rating se guarda en Redis con la clave de su ID.
+    @Cacheable(value = "ratings", key = "#id")
     public Rating findById(String id) {
         return ratingRepository.findById(id)
                 .orElseThrow(() -> new RatingNotFoundException(id));
     }
 
+    @Cacheable(value = "ratingsByMovie", key = "#movieId")
     public List<Rating> findAllByMovieId(String movieId) {
         //Call feign client to get movie
         CatalogDTO movie = catalogClient.getById(movieId);
@@ -90,6 +101,9 @@ public class RatingService {
 
 
     //Update a rating
+    @CacheEvict(value = {"ratings", "allRatings", "ratingsByMovie"}, allEntries = true)
+    //value = {"ratings", "allRatings", "ratingsByMovie"} → Limpia todos los espacios de caché relacionados.
+    //allEntries = true → Elimina todas las entradas dentro de cada espacio de caché listado.
     public RatingDTO changeRating(String id, RatingDTO ratingDTO) {
         Rating updatedRating = findById(id);
         ratingMapper.updateRatingToDto(ratingDTO, updatedRating);
@@ -98,6 +112,7 @@ public class RatingService {
     }
 
     //Delete rating
+    @CacheEvict(value = {"ratings", "allRatings", "ratingsByMovie"}, allEntries = true)
     public void removeRating(String id) {
         Rating rating = ratingRepository.findById(id)
                 .orElseThrow(() -> new RatingNotFoundException(id));

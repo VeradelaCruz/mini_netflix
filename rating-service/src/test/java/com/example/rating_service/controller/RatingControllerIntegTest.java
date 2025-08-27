@@ -215,7 +215,6 @@ public class RatingControllerIntegTest {
         assertEquals("C1", result.get(0).getMovieId());
         assertEquals(1, result.size());
     }
-    //Hacer cuando movieId no existe
 
     @Test
     @DisplayName("Should return a rating updated")
