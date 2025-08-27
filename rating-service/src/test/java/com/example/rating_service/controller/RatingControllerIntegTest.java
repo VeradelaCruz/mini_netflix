@@ -27,8 +27,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -117,10 +117,6 @@ public class RatingControllerIntegTest {
         catalogDTO.setTitle("Title");
         catalogDTO.setDescription("----");
         catalogDTO.setRatingAverage(3.5);
-//Mockear la respuesta del catalogClient para "C1", devolviendo un CatalogDTO válido.
-        Mockito.when(catalogClient.getById("C1")).thenReturn(catalogDTO);
-//Mockear la excepcion del catalogClient para "C1", devolviendo un CatalogDTO válido.
-        Mockito.when(catalogClient.getById("C1")).thenReturn(null);
 
         ratingDTO= new RatingDTO();
         ratingDTO.setId("1L");
@@ -148,4 +144,27 @@ public class RatingControllerIntegTest {
         assertEquals(3, savedRatings.size());
 
     }
+
+    @Test
+    @DisplayName("Should add a rating, calculate average, and return correct response")
+    void addAndCalculateAverage_ShouldReturnCreated() throws Exception {
+        // Guardamos ratings previos en la base para simular datos existentes
+        ratingRepository.saveAll(ratingList);
+        // Cuando el service llame al catalogClient.updateScore, simplemente hacemos nada
+        when(catalogClient.updateScore(any())).thenReturn(null); // o un objeto válido
+
+
+        // Llamamos al endpoint usando MockMvc
+        mockMvc.perform(post("/rating/addAndCalculateAverage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(ratingUserDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.movieId").value("C3"))
+                .andExpect(jsonPath("$.averageScore").value(4.5))
+                .andExpect(jsonPath("$.message").value("Rating added and catalog updated successfully"));
+
+        // Verificamos que catalogClient.updateScore haya sido llamado exactamente una vez
+        verify(catalogClient, times(1)).updateScore(any());
+    }
+
 }
