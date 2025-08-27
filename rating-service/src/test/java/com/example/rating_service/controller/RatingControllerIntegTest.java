@@ -26,11 +26,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
@@ -167,4 +167,18 @@ public class RatingControllerIntegTest {
         verify(catalogClient, times(1)).updateScore(any());
     }
 
+    @Test
+    @DisplayName("Should show all ratings")
+    void  getAll_ShouldReturnAList() throws Exception{
+        ratingRepository.saveAll(ratingList);
+
+        mockMvc.perform(get("/rating/getAll")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(ratingList.size()))
+                .andExpect(jsonPath("$[0].id").value("1L"))
+                .andExpect(jsonPath("$[1].id").value("2L"))
+                .andExpect(jsonPath("$[2].id").value("3L"));
+        List<Rating> result= ratingRepository.findAll();
+        assertEquals(3, result.size());
+    }
 }
