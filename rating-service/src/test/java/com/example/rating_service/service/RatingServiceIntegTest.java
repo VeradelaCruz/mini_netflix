@@ -274,4 +274,23 @@ public class RatingServiceIntegTest {
 
     }
 
+    @Test
+    @DisplayName("Should remove a rating")
+    void removeRating_ShouldVoid(){
+        ratingRepository.saveAll(ratingList);
+        ratingRepository.deleteById(rating1.getId());
+
+        assertFalse(ratingRepository.existsById(rating1.getMovieId()));
+    }
+
+    @Test
+    @DisplayName("Should return RatingNotFoundException ")
+    void removeRating_ShouldReturnException(){
+        RatingNotFoundException exception= assertThrows(RatingNotFoundException.class,
+                ()->ratingService.removeRating(rating1.getId()));
+
+        assertEquals("Rating with id: 1L not found.", exception.getMessage());
+    }
+
+
 }

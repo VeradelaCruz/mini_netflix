@@ -99,7 +99,8 @@ public class RatingService {
 
     //Delete rating
     public void removeRating(String id) {
-        findAllByMovieId(id);
+        Rating rating = ratingRepository.findById(id)
+                .orElseThrow(() -> new RatingNotFoundException(id));
         ratingRepository.deleteById(id);
     }
 
