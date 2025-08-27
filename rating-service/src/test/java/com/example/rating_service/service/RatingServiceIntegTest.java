@@ -3,6 +3,7 @@ package com.example.rating_service.service;
 import com.example.rating_service.client.CatalogClient;
 import com.example.rating_service.dtos.CatalogDTO;
 import com.example.rating_service.dtos.RatingAverageDTO;
+import com.example.rating_service.dtos.RatingDTO;
 import com.example.rating_service.dtos.RatingUserDTO;
 import com.example.rating_service.enums.Score;
 import com.example.rating_service.exception.MovieNotFoundById;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -56,6 +58,7 @@ public class RatingServiceIntegTest {
     private RatingUserDTO ratingUserDTO;
     private RatingAverageDTO ratingAverageDTO;
     private CatalogDTO catalogDTO;
+    private RatingDTO ratingDTO;
 
 
 
@@ -111,6 +114,13 @@ public class RatingServiceIntegTest {
         Mockito.when(catalogClient.getById("C1")).thenReturn(catalogDTO);
 //Mockear la excepcion del catalogClient para "C1", devolviendo un CatalogDTO válido.
         Mockito.when(catalogClient.getById("C1")).thenReturn(null);
+
+        ratingDTO= new RatingDTO();
+        ratingDTO.setId("1L");
+        ratingDTO.setMovieId("C1");
+        ratingDTO.setUserId("U1");
+        ratingDTO.setComment("----");
+        ratingDTO.setScore(Score.FOUR_STARS);
 
     }
 
@@ -244,6 +254,24 @@ public class RatingServiceIntegTest {
                 ()->  ratingService.findAllByMovieId("C1"));
 
         assertEquals("Movie with id: C1 not found.", exception.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("Should update ratingScore in rating")
+    void changeRating_ShouldReturnDTO(){
+        ratingRepository.saveAll(ratingList);
+
+        RatingDTO rating= ratingService.changeRating(rating1.getId(), ratingDTO);
+        assertNotNull(rating);
+        assertEquals("1L", rating.getId());
+        assertEquals(Score.FOUR_STARS,rating.getScore());
+
+        // Verificar cambios en DB
+        Rating ratingFromDb = ratingRepository.findById(rating1.getId()).orElseThrow();
+        assertEquals(Score.FOUR_STARS, ratingFromDb.getScore());
+        assertEquals(Score.FOUR_STARS, rating.getScore());
+
     }
 
 }
