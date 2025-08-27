@@ -151,7 +151,7 @@ public class RatingControllerIntegTest {
         // Guardamos ratings previos en la base para simular datos existentes
         ratingRepository.saveAll(ratingList);
         // Cuando el service llame al catalogClient.updateScore, simplemente hacemos nada
-        when(catalogClient.updateScore(any())).thenReturn(null); // o un objeto válido
+        when(catalogClient.updateScore(any())).thenReturn(null);
 
 
         // Llamamos al endpoint usando MockMvc
@@ -194,5 +194,24 @@ public class RatingControllerIntegTest {
 
         Rating result = ratingRepository.findById(rating1.getId()).orElseThrow();
         assertEquals("1L", result.getId());
+    }
+
+    @Test
+    @DisplayName("Should returng a rating by movie id")
+    void getByMovieId_shouldReturnRating() throws Exception{
+        ratingRepository.saveAll(ratingList);
+
+        when(catalogClient.getById("C1")).thenReturn(catalogDTO);
+
+        mockMvc.perform(get("/rating/byMovie/{movieId}", rating1.getMovieId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].movieId").value("C1"));
+
+        verify(catalogClient, times(1)).getById("C1");
+
+        List<Rating> result = ratingRepository.findByMovieId(rating1.getMovieId());
+        assertEquals("C1", result.get(0).getMovieId());
+        assertEquals(1, result.size());
     }
 }
