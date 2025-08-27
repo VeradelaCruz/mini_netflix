@@ -11,6 +11,8 @@ import com.example.recommendation_service.repository.RecommendationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -33,11 +35,13 @@ public class RecommendationService {
     private UserClient userClient;
 
     //Get all recommendations:
+    @Cacheable(value = "allRecommendations")
     public List<Recommendation> findAllRecommendations(){
         return recommendationRepository.findAll();
     }
 
     //Get by id
+    @Cacheable(value = "userId", key = "#userId")
     public  Recommendation findByUserId(String userId){
         return recommendationRepository.findByUserId(userId)
                 .orElseThrow(()-> new UserNotFoundException(userId));
@@ -66,6 +70,7 @@ public class RecommendationService {
     }
 
     //Assign movies to a user based on preferences with Circuit Breaker
+    @CacheEvict(value = {"allRecommendations", "userId"}, allEntries = true)
     @CircuitBreaker(name = "recommendationServiceCB",
             fallbackMethod = "fallbackCreateRecommendation")
     public List<Recommendation> createRecommendation(){
@@ -109,6 +114,7 @@ public class RecommendationService {
 
 
     // Filter recommended movies by minimum score
+    @Cacheable(value = "allRecommendations", key = "#minScore")
     public List<CatalogDTO> findRecommendationByScore(double minScore) {
         // Get all movies from catalog-service with ratingAverage greater than or equal to minScore
         List<CatalogDTO> catalogDTO = catalogClient.getAll()
