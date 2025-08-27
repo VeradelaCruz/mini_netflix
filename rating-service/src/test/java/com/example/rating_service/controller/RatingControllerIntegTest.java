@@ -181,4 +181,18 @@ public class RatingControllerIntegTest {
         List<Rating> result= ratingRepository.findAll();
         assertEquals(3, result.size());
     }
+
+    @Test
+    @DisplayName("Should return a rating via GET endpoint")
+    void getById_ShouldReturnRating() throws Exception{
+        ratingRepository.saveAll(ratingList);
+
+        mockMvc.perform(get("/rating/{id}", rating1.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1L"));
+
+        Rating result = ratingRepository.findById(rating1.getId()).orElseThrow();
+        assertEquals("1L", result.getId());
+    }
 }
