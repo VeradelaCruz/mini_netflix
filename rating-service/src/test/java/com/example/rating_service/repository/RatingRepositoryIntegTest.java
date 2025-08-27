@@ -107,4 +107,14 @@ public class RatingRepositoryIntegTest {
         assertTrue(ratings.stream().allMatch(r -> r.getMovieId().equals("C1")));
 
     }
+
+    @Test
+    @DisplayName("Should remove a rating")
+    void deleteRating_ShouldReturnVoid(){
+        ratingRepository.saveAll(ratingList);
+
+        ratingRepository.deleteById(rating1.getId());
+
+        assertFalse(ratingRepository.existsById(rating1.getId()));
+    }
 }
