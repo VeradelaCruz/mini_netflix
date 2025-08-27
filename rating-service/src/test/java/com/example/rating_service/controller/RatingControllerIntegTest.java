@@ -22,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -197,7 +198,7 @@ public class RatingControllerIntegTest {
     }
 
     @Test
-    @DisplayName("Should returng a rating by movie id")
+    @DisplayName("Should return a rating by movie id")
     void getByMovieId_shouldReturnRating() throws Exception{
         ratingRepository.saveAll(ratingList);
 
@@ -214,4 +215,20 @@ public class RatingControllerIntegTest {
         assertEquals("C1", result.get(0).getMovieId());
         assertEquals(1, result.size());
     }
+    //Hacer cuando movieId no existe
+
+    @Test
+    @DisplayName("Should return a rating updated")
+    void updateRating_shouldReturnRating() throws  Exception{
+        ratingRepository.saveAll(ratingList);
+
+        mockMvc.perform(put("/rating/update/{id}", rating1.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(ratingDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value("FOUR_STARS"))
+                .andExpect(jsonPath("$.comment").value("----"));
+    }
+
+
 }
