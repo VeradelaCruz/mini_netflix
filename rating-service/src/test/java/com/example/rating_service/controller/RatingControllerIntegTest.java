@@ -230,5 +230,15 @@ public class RatingControllerIntegTest {
                 .andExpect(jsonPath("$.comment").value("----"));
     }
 
+    @Test
+    @DisplayName("Should remove a rating")
+    void  removeRating_shouldReturnVoid() throws  Exception{
+        ratingRepository.saveAll(ratingList);
+
+        mockMvc.perform(delete("/rating/delete/{id}", rating1.getId())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
 
 }
