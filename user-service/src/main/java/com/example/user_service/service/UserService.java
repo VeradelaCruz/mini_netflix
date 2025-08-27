@@ -12,8 +12,9 @@ import com.example.user_service.models.User;
 import com.example.user_service.repository.UserRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import feign.RetryableException;
 
 
 import java.util.*;
@@ -32,6 +33,7 @@ public class UserService {
     private CatalogClient catalogClient;
 
     //Create user:
+    @CacheEvict(value = {"allUsers", "userList"}, allEntries = true)
     public List<User> createUser(List<User> userList){
         if(userList.isEmpty()|| userList==null){
             throw new IllegalArgumentException("The user list cannot be empty");
@@ -40,17 +42,20 @@ public class UserService {
     }
 
     //Get all users:
+    @Cacheable(value = "allUsers")
     public List<User> findAll(){
     return userRepository.findAll();
     }
 
     //Get user by name:
+    @Cacheable(value = {"allUsers", "userId"}, key = "#userId")
     public User findById(String userId){
         return userRepository.findById(userId)
                 .orElseThrow(()-> new UserNotFoundException(userId));
     }
 
     //Update a user:
+    @CacheEvict(value = {"userId", "userDTO", "allUsers"}, allEntries = true)
     public User updateUser(String userId, UserDTO userDTO){
         User updatedUser= findById(userId);
         userMapper.updateUserToDTO(userDTO, updatedUser);
@@ -58,12 +63,14 @@ public class UserService {
     }
 
     //Delete user:
+    @CacheEvict(value = {"allUsers", "userName"}, allEntries = true)
     public void removeUser(String userName){
         User user = findById(userName);
         userRepository.delete(user);
     }
 
     //Find users by role:
+    @Cacheable(value = {"allUsers", "role"}, key = "#role")
     public List<User> findByRoles(Role role){
         List<User> users = userRepository.findUsersByRole(role);
         if (users.isEmpty()) {
@@ -75,6 +82,7 @@ public class UserService {
     //Create a rating:
     @CircuitBreaker(name = "ratingServiceCB",
             fallbackMethod = "fallbackUpdateScore")
+    @CacheEvict(value = {"allUsers, ratingDTO"}, allEntries = true)
     public String sendRatingAndUpdateCatalog(RatingUserDTO ratingDTO) {
             ratingClient.addAndCalculateAverage(ratingDTO);
             return "Rating sent and average updated successfully.";
@@ -86,6 +94,7 @@ public class UserService {
 
 
     //Filter users by preferences:
+    @Cacheable(value = {"preferences", "allUsers"}, key = "#preferences")
     public List<User> findUserByPreferences(List<String> preferences){
         Set<String> prefsSet = new HashSet<>(preferences);
         return findAll().stream()
@@ -97,6 +106,7 @@ public class UserService {
     }
 
     //Count users by role:
+    @Cacheable(value = "usersByRole")
     public List<UserRoleDTO> countUsersByRoles() {
         return findAll().stream()
                 // Agrupa los usuarios por rol
