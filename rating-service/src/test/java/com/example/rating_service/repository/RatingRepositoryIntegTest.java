@@ -85,4 +85,14 @@ public class RatingRepositoryIntegTest {
         assertEquals(3, list.size());
 
     }
+
+    @Test
+    @DisplayName("Should find a rating by id")
+    void findById_ShouldReturnRating(){
+        ratingRepository.saveAll(ratingList);
+
+        Rating rating= ratingRepository.findById(rating1.getId()).get();
+
+        assertEquals("1L", rating.getId());
+    }
 }
