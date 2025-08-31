@@ -19,8 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -143,5 +142,20 @@ public class RecommendationRepositoryIntegTest {
         assertEquals("U1", savedList.get(0).getUserId());
         assertEquals("U2", savedList.get(1).getUserId());
         assertEquals("U2", savedList.get(2).getUserId());
+    }
+
+    @Test
+    @DisplayName("Should find all recommendations")
+    void findAll_shouldReturnList(){
+        recommendationRepository.saveAll(recommendationList);
+
+        List<Recommendation> recommendations= recommendationRepository.findAll();
+        assertNotNull(recommendations);
+        assertEquals(3, recommendations.size());
+
+        // Verificamos que los IDs de usuario coinciden con los esperados
+        assertTrue(recommendations.stream().anyMatch(r -> "U1".equals(r.getUserId())));
+        assertTrue(recommendations.stream().anyMatch(r -> "U2".equals(r.getUserId())));
+
     }
 }
