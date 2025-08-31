@@ -1,11 +1,12 @@
 spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/recommendation_test_db
   cache:
     type: simple
   main:
     allow-bean-definition-overriding: true
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/recommendation_test_db
+
 eureka:
   client:
     enabled: false
