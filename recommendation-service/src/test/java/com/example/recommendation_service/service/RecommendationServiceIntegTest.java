@@ -3,6 +3,7 @@ package com.example.recommendation_service.service;
 import com.example.recommendation_service.config.CacheTestConfig;
 import com.example.recommendation_service.config.RedisConfig;
 import com.example.recommendation_service.dtos.CatalogDTO;
+import com.example.recommendation_service.exception.UserNotFoundException;
 import com.example.recommendation_service.models.Recommendation;
 import com.example.recommendation_service.repository.RecommendationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -138,5 +138,15 @@ public class RecommendationServiceIntegTest {
         Recommendation result= recommendationRepository.findByUserId(recommendation1.getUserId()).get();
         assertNotNull(result);
         assertEquals("U1", result.getUserId());
+    }
+
+    @Test
+    @DisplayName("Should return exception when userId does not exist")
+    void  findByUserId_ShouldReturnException(){
+        UserNotFoundException exception= assertThrows(UserNotFoundException.class,
+                ()-> recommendationService.findByUserId(recommendation1.getUserId()));
+
+        assertNotNull(exception);
+        assertEquals("User with name: U1 not found.", exception.getMessage());
     }
 }
