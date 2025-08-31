@@ -1,5 +1,6 @@
 package com.example.recommendation_service.service;
 
+import com.example.recommendation_service.client.CatalogClient;
 import com.example.recommendation_service.client.UserClient;
 import com.example.recommendation_service.config.CacheTestConfig;
 import com.example.recommendation_service.config.RedisConfig;
@@ -48,6 +49,9 @@ public class RecommendationServiceIntegTest {
 
     @MockitoBean
     private UserClient userClient;
+
+    @MockitoBean
+    private CatalogClient catalogClient;
 
     private Recommendation recommendation1;
     private Recommendation recommendation2;
@@ -225,4 +229,38 @@ public class RecommendationServiceIntegTest {
         assertNotNull(exception);
         assertEquals("Movie with id: 999L not found.", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("Should create a recommendation with userId and preferences")
+    void  createRecommendation_shouldReturnRecommendation(){
+        // Mock responses
+        when(userClient.getAllUsers()).thenReturn(userDTOS);
+        when(catalogClient.getAll()).thenReturn(List.of(catalogDTO1, catalogDTO2, catalogDTO3, catalogDTO4));
+
+        List<Recommendation> recommendations = recommendationService.createRecommendation();
+
+        // Validamos que los userId coincidan
+        List<String> expectedUserIds = List.of("U1", "U2", "U3");
+        assertTrue(recommendations.stream()
+                .map(Recommendation::getUserId)
+                .allMatch(expectedUserIds::contains)
+        );
+
+        // Validamos que todas las películas recomendadas correspondan a las preferencias del usuario
+        assertTrue(
+                recommendations.stream() // recorremos cada Recommendation
+                        .allMatch(rec ->
+                                rec.getRecommendedMovies().stream() // recorremos cada película recomendada
+                                        .allMatch(movie ->
+                                                userDTOS.stream() // buscamos al usuario correspondiente por userId
+                                                        .filter(u -> u.getUserId().equals(rec.getUserId())) // filtramos por userId
+                                                        .findFirst() // tomamos el primer usuario que coincide (debería haber solo uno)
+                                                        .get() // obtenemos el objeto UserDTO
+                                                        .getPreferences() // obtenemos las preferencias de ese usuario
+                                                        .contains(movie.getGenre()) // verificamos que el género de la película esté en sus preferencias
+                                        )
+                        )
+        );
+    }
+
 }
