@@ -270,7 +270,7 @@ public class RecommendationServiceIntegTest {
 
         when(catalogClient.getAll()).thenReturn(List.of(catalogDTO1, catalogDTO2, catalogDTO3, catalogDTO4));
         when(userClient.getAllUsers()).thenReturn(userDTOS);
-        
+
         List<CatalogDTO> list= recommendationService.findRecommendationByScore(4.0);
         assertNotNull(list);
         assertEquals(2, list.size());
