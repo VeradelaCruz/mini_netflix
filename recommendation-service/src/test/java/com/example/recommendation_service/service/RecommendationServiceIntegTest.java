@@ -5,6 +5,7 @@ import com.example.recommendation_service.config.CacheTestConfig;
 import com.example.recommendation_service.config.RedisConfig;
 import com.example.recommendation_service.dtos.CatalogDTO;
 import com.example.recommendation_service.dtos.UserDTO;
+import com.example.recommendation_service.exception.MovieNotFoundException;
 import com.example.recommendation_service.exception.UserNotFoundException;
 import com.example.recommendation_service.models.Recommendation;
 import com.example.recommendation_service.repository.RecommendationRepository;
@@ -207,5 +208,21 @@ public class RecommendationServiceIntegTest {
 
         // Verificaciones opcionales
         verify(userClient, times(1)).getAllUsers();
+    }
+
+    @Test
+    @DisplayName("Should return an exception when findUsersByRecommendedMovie is called")
+    void findUsersByRecommendedMovie_ShouldReturnException(){
+        recommendationRepository.saveAll(recommendationList);
+
+        when(userClient.getAllUsers()).thenReturn(userDTOS);
+
+        MovieNotFoundException exception = assertThrows(
+                MovieNotFoundException.class,
+                () -> recommendationService.findUsersByRecommendedMovie("999L")
+        );
+
+        assertNotNull(exception);
+        assertEquals("Movie with id: 999L not found.", exception.getMessage());
     }
 }
