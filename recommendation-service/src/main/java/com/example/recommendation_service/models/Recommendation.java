@@ -1,6 +1,7 @@
 package com.example.recommendation_service.models;
 
 import com.example.recommendation_service.dtos.CatalogDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,6 +15,7 @@ public class Recommendation {
     private List<CatalogDTO> recommendedMovies;
     @NotNull
     @CreatedDate
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate generatedAt;
 
 

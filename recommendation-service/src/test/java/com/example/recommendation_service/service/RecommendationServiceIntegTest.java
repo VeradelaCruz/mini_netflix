@@ -1,0 +1,121 @@
+package com.example.recommendation_service.service;
+
+import com.example.recommendation_service.config.CacheTestConfig;
+import com.example.recommendation_service.config.RedisConfig;
+import com.example.recommendation_service.dtos.CatalogDTO;
+import com.example.recommendation_service.models.Recommendation;
+import com.example.recommendation_service.repository.RecommendationRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@SpringBootTest(properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false"
+
+})
+@ActiveProfiles("test")
+@Import({MongoTestConfig.class, CacheTestConfig.class})
+@ImportAutoConfiguration(exclude = RedisConfig.class)
+public class RecommendationServiceIntegTest {
+    @Autowired
+    private RecommendationService recommendationService;
+
+    @Autowired
+    private RecommendationRepository recommendationRepository;
+
+    private Recommendation recommendation1;
+    private Recommendation recommendation2;
+    private Recommendation recommendation3;
+    private List<Recommendation> recommendationList;
+
+    //DTOs
+    private CatalogDTO catalogDTO1;
+    private CatalogDTO catalogDTO2;
+    private CatalogDTO catalogDTO3;
+    private CatalogDTO catalogDTO4;
+
+    List<CatalogDTO> catalogDTOS1;
+    List<CatalogDTO> catalogDTOS2;
+
+
+    @BeforeEach
+    void  SetUp(){
+        recommendationRepository.deleteAll();
+
+        recommendation1= new Recommendation();
+        recommendation1.setRecommendedMovies(catalogDTOS1);
+        recommendation1.setGeneratedAt(LocalDate.now());
+        recommendation1.setUserId("U1");
+
+        recommendation2= new Recommendation();
+        recommendation2.setRecommendedMovies(catalogDTOS2);
+        recommendation2.setGeneratedAt(LocalDate.now());
+        recommendation2.setUserId("U2");
+
+        recommendation3= new Recommendation();
+        recommendation3.setRecommendedMovies(catalogDTOS1);
+        recommendation3.setGeneratedAt(LocalDate.now());
+        recommendation3.setUserId("U2");
+
+        //DTOS
+        catalogDTO1= new CatalogDTO();
+        catalogDTO1.setMovieId("1L");
+        catalogDTO1.setTitle("Title1");
+        catalogDTO1.setDescription("----");
+        catalogDTO1.setRatingAverage(3.5);
+        catalogDTO1.setGenre("ACTION");
+
+        catalogDTO2= new CatalogDTO();
+        catalogDTO2.setMovieId("2L");
+        catalogDTO2.setTitle("Title2");
+        catalogDTO2.setDescription("----");
+        catalogDTO2.setRatingAverage(4.5);
+        catalogDTO2.setGenre("ANIMATION");
+
+        catalogDTOS1 = List.of(catalogDTO1, catalogDTO2);
+
+        catalogDTO3= new CatalogDTO();
+        catalogDTO3.setMovieId("3L");
+        catalogDTO3.setTitle("Title3");
+        catalogDTO3.setDescription("----");
+        catalogDTO3.setRatingAverage(4.8);
+        catalogDTO3.setGenre("SCI_FIC");
+
+        catalogDTO4= new CatalogDTO();
+        catalogDTO4.setMovieId("4L");
+        catalogDTO4.setTitle("Title4");
+        catalogDTO4.setDescription("----");
+        catalogDTO4.setRatingAverage(3.9);
+        catalogDTO4.setGenre("DRAMA");
+
+        catalogDTOS2= List.of(catalogDTO3, catalogDTO4);
+
+        recommendationList= List.of(recommendation1, recommendation2, recommendation3);
+    }
+
+    @Test
+    @DisplayName("Should find all recommendations")
+    void findAll_shouldReturnAList(){
+        recommendationRepository.saveAll(recommendationList);
+
+        List<Recommendation> recommendations= recommendationService.findAllRecommendations();
+
+        assertNotNull(recommendations);
+        assertEquals(3, recommendations.size());
+
+        List<Recommendation> result= recommendationRepository.findAll();
+        assertEquals(3, result.size());
+    }
+}
