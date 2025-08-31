@@ -263,4 +263,20 @@ public class RecommendationServiceIntegTest {
         );
     }
 
+    @Test
+    @DisplayName("Should return all recommendations by score")
+    void findRecommendationByScore_shouldReturnList(){
+        recommendationRepository.saveAll(recommendationList);
+
+        when(catalogClient.getAll()).thenReturn(List.of(catalogDTO1, catalogDTO2, catalogDTO3, catalogDTO4));
+        when(userClient.getAllUsers()).thenReturn(userDTOS);
+        
+        List<CatalogDTO> list= recommendationService.findRecommendationByScore(4.0);
+        assertNotNull(list);
+        assertEquals(2, list.size());
+
+        assertTrue(list.stream().allMatch(movie -> movie.getRatingAverage() >= 4.0));
+
+    }
+
 }

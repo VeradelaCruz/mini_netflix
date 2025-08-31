@@ -130,8 +130,8 @@ public class RecommendationService {
             } else {
                 return Stream.empty(); // In case recommendedMovies is null
             }})
-                .map(CatalogDTO::getMovieId)                          // Convert Stream<CatalogDTO> -> Stream<String>
-                .collect(Collectors.toSet());                        // Collect as Set<String>
+                .map(CatalogDTO::getMovieId)     // Convert Stream<CatalogDTO> -> Stream<String>
+                .collect(Collectors.toSet());   // Collect as Set<String>
 
         // Filter the catalog movies to include only those that are in the recommended movies
         return catalogDTO.stream()
