@@ -26,8 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 })
 @ActiveProfiles("test")
+// Indicamos a Spring que importe estas configuraciones adicionales solo para este test
+// Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
 @Import({MongoTestConfig.class, CacheTestConfig.class})
+
+// Excluimos la configuración automática de Redis para este test
+// Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
+
 public class RecommendationServiceIntegTest {
     @Autowired
     private RecommendationService recommendationService;
@@ -117,5 +123,20 @@ public class RecommendationServiceIntegTest {
 
         List<Recommendation> result= recommendationRepository.findAll();
         assertEquals(3, result.size());
+    }
+
+    @Test
+    @DisplayName("Should return recommendations by userId")
+    void findByUserId_ShouldReturnRecommendation(){
+        recommendationRepository.saveAll(recommendationList);
+
+        Recommendation recommendation= recommendationService.findByUserId(recommendation1.getUserId());
+
+        assertNotNull(recommendation);
+        assertEquals("U1", recommendation.getUserId());
+
+        Recommendation result= recommendationRepository.findByUserId(recommendation1.getUserId()).get();
+        assertNotNull(result);
+        assertEquals("U1", result.getUserId());
     }
 }
