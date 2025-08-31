@@ -4,6 +4,7 @@ import com.example.recommendation_service.config.CacheTestConfig;
 import com.example.recommendation_service.config.RedisConfig;
 import com.example.recommendation_service.dtos.CatalogDTO;
 import com.example.recommendation_service.dtos.UserDTO;
+import com.example.recommendation_service.exception.UserNotFoundException;
 import com.example.recommendation_service.models.Recommendation;
 import com.example.recommendation_service.repository.RecommendationRepository;
 import com.example.recommendation_service.service.MongoTestConfig;
@@ -156,6 +157,26 @@ public class RecommendationRepositoryIntegTest {
         // Verificamos que los IDs de usuario coinciden con los esperados
         assertTrue(recommendations.stream().anyMatch(r -> "U1".equals(r.getUserId())));
         assertTrue(recommendations.stream().anyMatch(r -> "U2".equals(r.getUserId())));
+    }
 
+    @Test
+    @DisplayName("Should find recommendations by userId")
+    void findByUserId_ShouldReturnList(){
+        recommendationRepository.saveAll(recommendationList);
+
+        Recommendation recommendation= recommendationRepository.findByUserId("U1").get();
+
+        assertNotNull(recommendation);
+        assertEquals("U1", recommendation.getUserId());
+    }
+
+    @Test
+    @DisplayName("Should save a recommendation")
+    void saveRecommendation_ShouldReturnRecommendation(){
+        Recommendation savedRecommendation= recommendationRepository.save(recommendation1);
+
+        // Validamos que los datos importantes se hayan persistido correctamente
+        assertEquals(recommendation1.getUserId(), savedRecommendation.getUserId());
+        assertEquals(recommendation1.getRecommendedMovies(), savedRecommendation.getRecommendedMovies());
     }
 }
