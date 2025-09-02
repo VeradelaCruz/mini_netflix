@@ -249,4 +249,18 @@ public class RecommendationControllerIntegTest {
 
     }
 
+    @Test
+    @DisplayName("Should return a list of recommendations by score")
+    void getByMinScore_shouldReturnAList() throws Exception{
+        recommendationRepository.saveAll(recommendationList);
+
+        when(catalogClient.getAll()).thenReturn(catalogDTOS1);
+
+        mockMvc.perform(get("/recommendation/getByMinScore/{minScore}", 4.0)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].movieId").value("2L"))
+                .andExpect(jsonPath("$[0].ratingAverage").value(4.5));
+    }
+
 }
