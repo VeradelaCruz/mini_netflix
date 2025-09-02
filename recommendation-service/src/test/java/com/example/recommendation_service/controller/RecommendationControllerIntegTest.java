@@ -23,8 +23,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +34,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -177,7 +180,7 @@ public class RecommendationControllerIntegTest {
 
     @Test
     @DisplayName("Should get all recommendations by userId by GET endpoint")
-    void getByUserId_shouldReturnList() throws Exception{
+    void getByUserId_shouldReturnARecommendation() throws Exception{
         recommendationRepository.saveAll(recommendationList);
 
         mockMvc.perform(get("/recommendation/userId/{userId}", recommendation1.getUserId())
@@ -197,4 +200,37 @@ public class RecommendationControllerIntegTest {
                 .andExpect(jsonPath("$.userId").value("U1"));
 
     }
+
+    @Test
+    @DisplayName("Should create recommendations by POST endpoint")
+    void createRecommendations_shouldReturnList() throws Exception{
+        when(userClient.getAllUsers()).thenReturn(userDTOS);
+        when(catalogClient.getAll()).thenReturn(Stream.of(catalogDTOS1, catalogDTOS2)
+                .flatMap(List::stream)
+                .collect(Collectors.toList()));
+
+        mockMvc.perform(post("/recommendation/createRecommendation")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3)) // Esperamos 3 recomendaciones
+
+                // Primera recomendación (U1)
+                .andExpect(jsonPath("$[0].userId").value("U1"))
+                .andExpect(jsonPath("$[0].recommendedMovies", hasSize(3)))
+                .andExpect(jsonPath("$[0].recommendedMovies[*].genre",
+                        containsInAnyOrder("ACTION", "ANIMATION", "DRAMA")))
+
+                // Segunda recomendación (U2)
+                .andExpect(jsonPath("$[1].userId").value("U2"))
+                .andExpect(jsonPath("$[1].recommendedMovies", hasSize(3)))
+                .andExpect(jsonPath("$[1].recommendedMovies[*].genre",
+                        containsInAnyOrder("SCI_FIC", "ANIMATION", "DRAMA")))
+
+                // Tercera recomendación (U3)
+                .andExpect(jsonPath("$[2].userId").value("U3"))
+                .andExpect(jsonPath("$[2].recommendedMovies", hasSize(2)))
+                .andExpect(jsonPath("$[2].recommendedMovies[*].genre",
+                        containsInAnyOrder("SCI_FIC", "ANIMATION")));
+    }
+
 }
