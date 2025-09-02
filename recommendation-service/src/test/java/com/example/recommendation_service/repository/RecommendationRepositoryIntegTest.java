@@ -1,12 +1,10 @@
-package com.example.recommendation_service.controller;
+package com.example.recommendation_service.repository;
 
 import com.example.recommendation_service.config.CacheTestConfig;
 import com.example.recommendation_service.config.RedisConfig;
 import com.example.recommendation_service.dtos.CatalogDTO;
 import com.example.recommendation_service.dtos.UserDTO;
-import com.example.recommendation_service.exception.UserNotFoundException;
 import com.example.recommendation_service.models.Recommendation;
-import com.example.recommendation_service.repository.RecommendationRepository;
 import com.example.recommendation_service.service.MongoTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

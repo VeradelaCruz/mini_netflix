@@ -53,6 +53,7 @@ public class RecommendationServiceIntegTest {
     @MockitoBean
     private CatalogClient catalogClient;
 
+
     private Recommendation recommendation1;
     private Recommendation recommendation2;
     private Recommendation recommendation3;
