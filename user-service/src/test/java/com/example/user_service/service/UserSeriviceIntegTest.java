@@ -135,4 +135,23 @@ public class UserSeriviceIntegTest {
         assertEquals(3, result.size());
     }
 
+    @Test
+    @DisplayName("Should return a user by id")
+    void findById_shouldReturnUser(){
+        userRepository.saveAll(userList);
+
+        User user= userService.findById(user1.getUserId());
+        assertNotNull(user);
+        assertEquals("1L", user.getUserId());
+        assertEquals("email1@gmail.com", user.getEmail());
+        assertEquals(List.of("ACTION", "SCI_FIC"), user.getPreferences());
+        assertEquals(Role.USER, user.getRole());
+
+        User result= userRepository.findById(user.getUserId()).get();
+        assertEquals("1L", result.getUserId());
+        assertEquals("email1@gmail.com", result.getEmail());
+        assertEquals(List.of("ACTION", "SCI_FIC"), result.getPreferences());
+        assertEquals(Role.USER, result.getRole());
+    }
+
 }
