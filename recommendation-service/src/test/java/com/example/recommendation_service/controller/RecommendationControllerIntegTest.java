@@ -233,4 +233,20 @@ public class RecommendationControllerIntegTest {
                         containsInAnyOrder("SCI_FIC", "ANIMATION")));
     }
 
+    @Test
+    @DisplayName("Should return a list of users by recommended movies")
+    void getUsersByRecommendedMovie_shouldReturnAListUserDTO() throws Exception{
+        recommendationRepository.saveAll(recommendationList);
+
+        when(userClient.getAllUsers()).thenReturn(userDTOS);
+
+        mockMvc.perform(get("/recommendation/userByMovie/{movieId}", "1L")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2))) // Debe haber 1 usuario con esa película recomendada
+                .andExpect(jsonPath("$[0].userId").value("U1"))
+                .andExpect(jsonPath("$[0].email").value("user1@gmail.com"));
+
+    }
+
 }
