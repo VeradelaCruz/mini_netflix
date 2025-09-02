@@ -120,4 +120,19 @@ public class UserSeriviceIntegTest {
 
     }
 
+    @Test
+    @DisplayName("Should find all users")
+    void findAllUsers_shouldReturnAList(){
+        userRepository.saveAll(userList);
+
+        List<User> list= userService.findAll();
+
+        assertNotNull(list);
+        assertEquals(3, list.size());
+
+        List<User> result= userRepository.findAll();
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
+
 }
