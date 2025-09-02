@@ -64,8 +64,8 @@ public class UserService {
 
     //Delete user:
     @CacheEvict(value = {"allUsers", "userName"}, allEntries = true)
-    public void removeUser(String userName){
-        User user = findById(userName);
+    public void removeUser(String userId){
+        User user = findById(userId);
         userRepository.delete(user);
     }
 

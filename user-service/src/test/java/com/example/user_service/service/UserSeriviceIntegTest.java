@@ -189,4 +189,23 @@ public class UserSeriviceIntegTest {
         assertEquals(Role.USER, result.getRole());
     }
 
+    @Test
+    @DisplayName("Should remove a user if present")
+    void removeUser_shouldVoid(){
+        userRepository.saveAll(userList);
+
+        userService.removeUser(user1.getUserId());
+
+        assertFalse(userRepository.existsById(user1.getUserId()));
+    }
+
+    @Test
+    @DisplayName("Should remove a user if is not present")
+    void removeUser_shouldException(){
+        UserNotFoundException exception= assertThrows(UserNotFoundException.class,
+                ()-> userService.findById("99L"));
+
+        assertEquals("User with name: 99L not found.", exception.getMessage());
+    }
+
 }
