@@ -23,10 +23,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -95,7 +95,7 @@ public class UserSeriviceIntegTest {
     }
 
     @Test
-    @DisplayName("Should crate an user if it's not empty")
+    @DisplayName("Should create an user if it's not empty")
     void createUser_shouldReturnAUserList(){
         List<User> list= userService.createUser(userList);
 
@@ -108,5 +108,16 @@ public class UserSeriviceIntegTest {
 
     }
 
+    @Test
+    @DisplayName("Should return an exception in case userList is empty")
+    void createUser_shouldReturnException() {
+        List<User> emptyList= new ArrayList<>();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.createUser(emptyList));
+
+        assertNotNull(exception);
+        assertEquals("The user list cannot be empty", exception.getMessage());
+
+    }
 
 }
