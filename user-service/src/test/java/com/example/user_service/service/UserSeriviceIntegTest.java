@@ -10,6 +10,7 @@ import com.example.user_service.dtos.RatingUserDTO;
 import com.example.user_service.dtos.UserDTO;
 import com.example.user_service.dtos.UserRoleDTO;
 import com.example.user_service.enums.Role;
+import com.example.user_service.exception.UserNotFoundException;
 import com.example.user_service.mapper.UserMapper;
 import com.example.user_service.models.User;
 import com.example.user_service.repository.UserRepository;
@@ -152,6 +153,15 @@ public class UserSeriviceIntegTest {
         assertEquals("email1@gmail.com", result.getEmail());
         assertEquals(List.of("ACTION", "SCI_FIC"), result.getPreferences());
         assertEquals(Role.USER, result.getRole());
+    }
+
+    @Test
+    @DisplayName("Should return an exception if id is not found")
+    void findById_shouldReturnException(){
+        UserNotFoundException exception= assertThrows(UserNotFoundException.class,
+                ()-> userService.findById(user1.getUserId()));
+
+        assertEquals("User with name: 1L not found.", exception.getMessage());
     }
 
 }
