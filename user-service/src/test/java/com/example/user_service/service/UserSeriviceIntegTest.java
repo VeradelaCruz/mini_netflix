@@ -90,7 +90,7 @@ public class UserSeriviceIntegTest {
         user3.setUserId("3L");
         user3.setEmail("email3@gmail.com");
         user3.setPreferences(List.of("ACTION", "DRAMA"));
-        user3.setRole(Role.USER);
+        user3.setRole(Role.ADMIN);
 
         userList = List.of(user1, user2, user3);
 
@@ -200,7 +200,7 @@ public class UserSeriviceIntegTest {
     }
 
     @Test
-    @DisplayName("Should remove a user if is not present")
+    @DisplayName("Should return an exception if is not present")
     void removeUser_shouldException(){
         UserNotFoundException exception= assertThrows(UserNotFoundException.class,
                 ()-> userService.findById("99L"));
@@ -208,4 +208,33 @@ public class UserSeriviceIntegTest {
         assertEquals("User with name: 99L not found.", exception.getMessage());
     }
 
+    @Test
+    @DisplayName("Should return a list of users by role if present")
+    void findByRoles_shouldReturnAList(){
+        userRepository.saveAll(userList);
+
+        List<User> users= userService.findByRoles(Role.USER);
+
+        assertEquals(2, users.size());
+        assertEquals(Role.USER, users.get(0).getRole());
+        assertEquals(Role.USER, users.get(1).getRole());
+
+        List<User> result= userRepository.findUsersByRole(Role.USER);
+        assertEquals(2, result.size());
+        assertEquals(Role.USER, result.get(0).getRole());
+        assertEquals(Role.USER, result.get(1).getRole());
+    }
+
+    @Test
+    @DisplayName("Should return an exception if is not present")
+    void findByRoles_shouldReturnException() {
+        userRepository.saveAll(List.of(user1,user2));
+
+        RuntimeException exception= assertThrows(RuntimeException.class,
+                ()-> userService.findByRoles(Role.ADMIN));
+
+        assertEquals("No users found with role: ADMIN", exception.getMessage() );
+
+
+    }
 }
