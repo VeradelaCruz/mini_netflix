@@ -16,12 +16,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,6 +47,7 @@ import java.util.List;
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
+@AutoConfigureMockMvc
 public class RecommendationControllerIntegTest {
 
     @Autowired
@@ -158,20 +161,40 @@ public class RecommendationControllerIntegTest {
     }
 
     @Test
-    @DisplayName("Should get all recommendations by GET enpoint.")
+    @DisplayName("Should get all recommendations by GET endpoint.")
     void getAll_shouldReturnList() throws Exception{
         recommendationRepository.saveAll(recommendationList);
 
-        String requestedBody= objectMapper.writeValueAsString(recommendationList);
-
         mockMvc.perform(get("/recommendation/getAll")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestedBody))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(recommendationList.size()));
 
 
         List<Recommendation> result= recommendationRepository.findAll();
         assertEquals(3, result.size());
+    }
+
+    @Test
+    @DisplayName("Should get all recommendations by userId by GET endpoint")
+    void getByUserId_shouldReturnList() throws Exception{
+        recommendationRepository.saveAll(recommendationList);
+
+        mockMvc.perform(get("/recommendation/userId/{userId}", recommendation1.getUserId())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                // Verifica que recommendedMovies exista y sea un arreglo
+                .andExpect(jsonPath("$.recommendedMovies").isArray())
+                // Verifica que al menos un elemento tenga genre "ACTION"
+                //$ → Representa el objeto raíz del JSON que devuelve tu endpoint.
+                //recommendedMovies → Es el atributo del objeto raíz que queremos inspeccionar (en tu caso, la lista de películas recomendadas).
+                //[*] → Es un comodín que indica "todos los elementos del array".
+                //.genre → Selecciona el atributo genre de cada elemento del array.
+                .andExpect(jsonPath("$.recommendedMovies[*].genre", hasItem("ACTION")))
+                // Verifica que al menos un elemento tenga genre "ANIMATION"
+                .andExpect(jsonPath("$.recommendedMovies[*].genre", hasItem("ANIMATION")))
+                // Opcional: verifica que userId de la respuesta sea el correcto
+                .andExpect(jsonPath("$.userId").value("U1"));
+
     }
 }

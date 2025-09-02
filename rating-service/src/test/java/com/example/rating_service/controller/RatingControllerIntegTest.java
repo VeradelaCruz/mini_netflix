@@ -131,6 +131,10 @@ public class RatingControllerIntegTest {
     @Test
     @DisplayName("Should create ratings via POST enpoint")
     void addRating_ShouldReturnOk() throws Exception {
+        //Cuando pruebas un endpoint con MockMvc que espera datos en formato JSON
+        // (por ejemplo, un POST o un PUT),
+        // debes enviar el contenido en el cuerpo de la solicitud
+        // (request body) como una cadena JSON.
         String requestedBody= objectMapper.writeValueAsString(ratingList);
 
         mockMvc.perform(post("/rating/addRating")
