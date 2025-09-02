@@ -93,6 +93,13 @@ public class UserSeriviceIntegTest {
         user3.setRole(Role.USER);
 
         userList = List.of(user1, user2, user3);
+
+        //DTOs
+        userDTO= new UserDTO();
+        userDTO.setUserId("1L");
+        userDTO.setEmail("email11@gmail.com");
+        userDTO.setPreferences(List.of("ANIMATION", "SCI_FIC"));
+        userDTO.setRole(Role.USER);
     }
 
     @Test
@@ -162,6 +169,24 @@ public class UserSeriviceIntegTest {
                 ()-> userService.findById(user1.getUserId()));
 
         assertEquals("User with name: 1L not found.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should update a user")
+    void  updateUser_shouldReturnUserUpdated(){
+        userRepository.saveAll(userList);
+
+        User user= userService.updateUser(user1.getUserId(), userDTO);
+        assertEquals("1L", user.getUserId());
+        assertEquals("email11@gmail.com", user.getEmail());
+        assertEquals(List.of("ANIMATION", "SCI_FIC"), user.getPreferences());
+        assertEquals(Role.USER, user.getRole());
+
+        User result= userRepository.save(user);
+        assertEquals("1L", result.getUserId());
+        assertEquals("email11@gmail.com", result.getEmail());
+        assertEquals(List.of("ANIMATION", "SCI_FIC"), result.getPreferences());
+        assertEquals(Role.USER, result.getRole());
     }
 
 }
