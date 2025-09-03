@@ -114,7 +114,6 @@ public class UserSeriviceIntegTest {
         ratingScoreDTO= new RatingScoreDTO();
         ratingScoreDTO.setMovieId("1M");
         ratingScoreDTO.setRatingAverage(3.0);
-
     }
 
     @Test
@@ -275,4 +274,33 @@ public class UserSeriviceIntegTest {
         assertThat(list.stream()
                 .anyMatch(pref -> List.of("ACTION", "SCI_FIC").contains(pref)));
     }
+
+    @Test
+    @DisplayName("Should count users by role")
+    void countUsersByRoles_shouldReturnAList() {
+        // Guardamos los usuarios de prueba en la base de datos
+        userRepository.saveAll(userList);
+
+        // Ejecutamos el metodo del servicio que agrupa usuarios por rol
+        List<UserRoleDTO> list = userService.countUsersByRoles();
+
+        // Verificamos que se devolvieron 2 roles (USER y ADMIN)
+        assertEquals(2, list.size());
+
+        // Buscamos el DTO correspondiente al rol USER
+        UserRoleDTO userRole = list.stream()
+                .filter(dto -> dto.getRole() == Role.USER)
+                .findFirst()
+                .orElseThrow(); // Si no lo encuentra, falla el test
+        assertEquals(2, userRole.getAmount()); // USER debe tener 2 usuarios
+
+        // Buscamos el DTO correspondiente al rol ADMIN
+        UserRoleDTO adminRole = list.stream()
+                .filter(dto -> dto.getRole() == Role.ADMIN)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(1, adminRole.getAmount()); // ADMIN debe tener 1 usuario
+    }
+
+
 }
