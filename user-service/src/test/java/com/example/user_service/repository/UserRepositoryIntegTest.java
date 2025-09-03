@@ -25,8 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -145,4 +144,14 @@ public class UserRepositoryIntegTest {
                 .anyMatch(pref -> List.of("ACTION", "SCI_FIC").contains(pref)));
         assertEquals(Role.USER, user.getRole());
     }
+
+    @Test
+    @DisplayName("Shoul remove a user fromm repository")
+    void removeUser(){
+        userRepository.saveAll(userList);
+
+        userRepository.deleteById(user1.getUserId());
+        assertFalse(userRepository.existsById(user1.getUserId()));
+    }        
+
 }
