@@ -152,6 +152,16 @@ public class UserRepositoryIntegTest {
 
         userRepository.deleteById(user1.getUserId());
         assertFalse(userRepository.existsById(user1.getUserId()));
-    }        
+    }
+    @Test
+    @DisplayName("Should find a user by role")
+    void findUserByRole(){
+        userRepository.saveAll(userList);
+
+        List<User> users= userRepository.findUsersByRole(Role.USER);
+        assertEquals(2,  users.size());
+        assertEquals(Role.USER, users.get(0).getRole());
+        assertEquals(Role.USER, users.get(0).getRole());
+    }
 
 }
