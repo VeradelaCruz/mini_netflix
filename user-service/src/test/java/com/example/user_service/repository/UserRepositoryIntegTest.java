@@ -121,4 +121,13 @@ public class UserRepositoryIntegTest {
         assertEquals("2L", list.get(1).getUserId());
         assertEquals("3L", list.get(2).getUserId());
     }
+
+    @Test
+    @DisplayName("Shoul find all users")
+    void findAll(){
+        userRepository.saveAll(userList);
+
+        List<User> list= userRepository.findAll();
+        assertEquals(3, list.size());
+    }
 }
