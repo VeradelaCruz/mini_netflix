@@ -27,7 +27,9 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -100,6 +102,19 @@ public class UserSeriviceIntegTest {
         userDTO.setEmail("email11@gmail.com");
         userDTO.setPreferences(List.of("ANIMATION", "SCI_FIC"));
         userDTO.setRole(Role.USER);
+
+        ratingUserDTO= new RatingUserDTO();
+        ratingUserDTO.setMovieId("1M");
+        ratingUserDTO.setId("1R");
+        ratingUserDTO.setUserId("1U");
+        ratingUserDTO.setComment("----");
+        ratingUserDTO.setScore("THREE_STARS");
+
+
+        ratingScoreDTO= new RatingScoreDTO();
+        ratingScoreDTO.setMovieId("1M");
+        ratingScoreDTO.setRatingAverage(3.0);
+
     }
 
     @Test
@@ -234,7 +249,30 @@ public class UserSeriviceIntegTest {
                 ()-> userService.findByRoles(Role.ADMIN));
 
         assertEquals("No users found with role: ADMIN", exception.getMessage() );
+    }
 
+    @Test
+    @DisplayName("Should send a rating from user and update ratingaAverage")
+    void sendRatingAndUpdateCatalog_shouldReturnMessage(){
+        userRepository.saveAll(userList);
 
+        String result = userService.sendRatingAndUpdateCatalog(ratingUserDTO);
+
+        // Assert: verificamos que el RatingClient fue llamado una vez con el DTO correcto
+        verify(ratingClient, times(1)).addAndCalculateAverage(ratingUserDTO);
+
+        // Assert: verificamos que el mensaje retornado es el esperado
+        assertEquals("Rating sent and average updated successfully.", result);
+    }
+
+    @Test
+    @DisplayName("Should return a list of user by preferences")
+    void findUserByPreferences_shouldReturnAList(){
+        userRepository.saveAll(userList);
+
+        List<User> list= userService.findUserByPreferences(List.of("ACTION", "SCI_FIC"));
+        assertEquals(3, list.size());
+        assertThat(list.stream()
+                .anyMatch(pref -> List.of("ACTION", "SCI_FIC").contains(pref)));
     }
 }
