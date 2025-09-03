@@ -26,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -123,11 +124,25 @@ public class UserRepositoryIntegTest {
     }
 
     @Test
-    @DisplayName("Shoul find all users")
+    @DisplayName("Should find all users")
     void findAll(){
         userRepository.saveAll(userList);
 
         List<User> list= userRepository.findAll();
         assertEquals(3, list.size());
+    }
+
+    @Test
+    @DisplayName("Should find a user by id")
+    void findById(){
+        userRepository.saveAll(userList);
+
+        User user= userRepository.findById(user1.getUserId()).get();
+        assertEquals("1L", user.getUserId());
+        assertEquals("email1@gmail.com", user.getEmail());
+        assertTrue(user.getPreferences()
+                .stream()
+                .anyMatch(pref -> List.of("ACTION", "SCI_FIC").contains(pref)));
+        assertEquals(Role.USER, user.getRole());
     }
 }
