@@ -1,4 +1,161 @@
-FROM ubuntu:latest
-LABEL authors="maida"
+version: '3.8'
 
-ENTRYPOINT ["top", "-b"]
+services:
+  # ------------------ Eureka ------------------
+  eureka-server:
+    image: eureka-service:latest
+    build:
+      context: ./eureka-service
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - mininetflix-net
+
+  # ------------------ Config Server ------------------
+  config-server:
+    image: config-server:latest
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - mininetflix-net
+
+  # ------------------ API Gateway ------------------
+  api-gateway:
+    image: apigateway:latest
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - EUREKA_SERVER_URI=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_URI=http://config-server:8888
+    depends_on:
+      - eureka-server
+      - config-server
+    networks:
+      - mininetflix-net
+
+  # ------------------ MongoDB ------------------
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mininetflix-net
+
+  # ------------------ Redis ------------------
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - mininetflix-net
+
+  # ------------------ Catalog Service ------------------
+  catalog-service:
+    image: catalog-service:latest
+    build:
+      context: ./catalog-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/catalog_db
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    depends_on:
+      - mongo
+      - redis
+      - eureka-server
+      - config-server
+    networks:
+      - mininetflix-net
+
+  # ------------------ Rating Service ------------------
+  rating-service:
+    image: rating-service:latest
+    build:
+      context: ./rating-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/rating_db
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    depends_on:
+      - mongo
+      - redis
+      - eureka-server
+      - config-server
+    networks:
+      - mininetflix-net
+
+  # ------------------ Recommendation Service ------------------
+  recommendation-service:
+    image: recommendation-service:latest
+    build:
+      context: ./recommendation-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/recommendation_db
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    depends_on:
+      - mongo
+      - redis
+      - eureka-server
+      - config-server
+    networks:
+      - mininetflix-net
+
+  # ------------------ User Service ------------------
+  user-service:
+    image: user-service:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/user_db
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    depends_on:
+      - mongo
+      - redis
+      - eureka-server
+      - config-server
+    networks:
+      - mininetflix-net
+
+volumes:
+  mongo_data:
+
+networks:
+  mininetflix-net:
+    driver: bridge
