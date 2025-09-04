@@ -157,10 +157,10 @@ public class CatalogServiceIntegTest {
         List<Catalog> catalogsResult= catalogService.findAllMovies();
 
         assertNotNull(catalogsResult);
-        assertEquals(2, catalogsResult.size());
+        assertEquals(3, catalogsResult.size());
 
         List<Catalog> catalogs= catalogRepository.findAll();
-        assertEquals(2, catalogs.size());
+        assertEquals(3, catalogs.size());
     }
 
     @Test
