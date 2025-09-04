@@ -1,12 +1,40 @@
 package com.example.user_service.controller;
 
+import com.example.user_service.client.CatalogClient;
+import com.example.user_service.client.RatingClient;
 import com.example.user_service.config.CacheTestConfig;
 import com.example.user_service.config.MongoTestConfig;
 import com.example.user_service.config.RedisConfig;
+import com.example.user_service.dtos.RatingScoreDTO;
+import com.example.user_service.dtos.RatingUserDTO;
+import com.example.user_service.dtos.UserDTO;
+import com.example.user_service.dtos.UserRoleDTO;
+import com.example.user_service.enums.Role;
+import com.example.user_service.models.User;
+import com.example.user_service.repository.UserRepository;
+import com.example.user_service.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.discovery.converters.Auto;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
@@ -21,5 +49,112 @@ import org.springframework.test.context.ActiveProfiles;
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
+@AutoConfigureMockMvc
 public class UserControllerIntegTest {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @MockBean
+    private RatingClient ratingClient;
+
+    @MockBean
+    private CatalogClient catalogClient;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private User user1;
+    private User user2;
+    private User user3;
+    List<User> userList;
+
+    //DTOs
+    private UserDTO userDTO;
+    private RatingScoreDTO ratingScoreDTO;
+    private RatingUserDTO ratingUserDTO;
+    private UserRoleDTO roleDTO;
+
+    @BeforeEach
+    void setUp(){
+        userRepository.deleteAll();
+
+        user1= new User();
+        user1.setUserId("1L");
+        user1.setEmail("email1@gmail.com");
+        user1.setPreferences(List.of("ACTION", "SCI_FIC"));
+        user1.setRole(Role.USER);
+
+        user2= new User();
+        user2.setUserId("2L");
+        user2.setEmail("email2@gmail.com");
+        user2.setPreferences(List.of("DRAMA", "SCI_FIC"));
+        user2.setRole(Role.USER);
+
+        user3= new User();
+        user3.setUserId("3L");
+        user3.setEmail("email3@gmail.com");
+        user3.setPreferences(List.of("ACTION", "DRAMA"));
+        user3.setRole(Role.ADMIN);
+
+        userList = List.of(user1, user2, user3);
+
+        //DTOs
+        userDTO= new UserDTO();
+        userDTO.setUserId("1L");
+        userDTO.setEmail("email11@gmail.com");
+        userDTO.setPreferences(List.of("ANIMATION", "SCI_FIC"));
+        userDTO.setRole(Role.USER);
+
+        ratingUserDTO= new RatingUserDTO();
+        ratingUserDTO.setMovieId("1M");
+        ratingUserDTO.setId("1R");
+        ratingUserDTO.setUserId("1U");
+        ratingUserDTO.setComment("----");
+        ratingUserDTO.setScore("THREE_STARS");
+
+
+        ratingScoreDTO= new RatingScoreDTO();
+        ratingScoreDTO.setMovieId("1M");
+        ratingScoreDTO.setRatingAverage(3.0);
+    }
+
+    @Test
+    @DisplayName("Should add a User in repository")
+    void addUser_shouldReturnAList() throws Exception{
+        String requestedBody= objectMapper.writeValueAsString(userList);
+
+        mockMvc.perform(post("/user/addUser")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestedBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.length()").value(3))
+                // ✅ Primer usuario
+                .andExpect(jsonPath("$[0].userId").value("1L"))
+                .andExpect(jsonPath("$[0].email").value("email1@gmail.com"))
+                .andExpect(jsonPath("$[0].preferences[*]",
+                        containsInAnyOrder("ACTION", "SCI_FIC")))
+                .andExpect(jsonPath("$[0].role").value("USER"))
+
+                // ✅ Segundo usuario
+                .andExpect(jsonPath("$[1].userId").value("2L"))
+                .andExpect(jsonPath("$[1].email").value("email2@gmail.com"))
+                .andExpect(jsonPath("$[1].preferences[*]",
+                        containsInAnyOrder("DRAMA", "SCI_FIC")))
+                .andExpect(jsonPath("$[1].role").value("USER"))
+
+                // ✅ Tercer usuario
+                .andExpect(jsonPath("$[2].userId").value("3L"))
+                .andExpect(jsonPath("$[2].email").value("email3@gmail.com"))
+                .andExpect(jsonPath("$[2].preferences[*]",
+                        containsInAnyOrder("ACTION", "DRAMA")))
+                .andExpect(jsonPath("$[2].role").value("ADMIN"));
+
+    }
 }
