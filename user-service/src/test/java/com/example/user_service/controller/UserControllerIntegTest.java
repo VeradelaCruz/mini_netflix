@@ -32,8 +32,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -286,6 +285,20 @@ public class UserControllerIntegTest {
                 .andExpect(jsonPath("$[0].userId").value("1L"))
                 .andExpect(jsonPath("$[1].userId").value("2L"))
                 .andExpect(jsonPath("$[2].userId").value("3L"));
+
+    }
+
+    @Test
+    @DisplayName("Should count users by roles")
+    void countUsersByRoles_shouldReturnList() throws Exception{
+        userRepository.saveAll(userList);
+
+        mockMvc.perform(get("/user/count-by-roles")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].role").value("ADMIN"))
+                .andExpect(jsonPath("$[0].amount").value(1))
+                .andExpect(jsonPath("$[1].role").value("USER"))
+                .andExpect(jsonPath("$[1].amount").value(2));
 
     }
 
