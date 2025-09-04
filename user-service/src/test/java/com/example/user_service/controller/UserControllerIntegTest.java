@@ -10,11 +10,11 @@ import com.example.user_service.dtos.RatingUserDTO;
 import com.example.user_service.dtos.UserDTO;
 import com.example.user_service.dtos.UserRoleDTO;
 import com.example.user_service.enums.Role;
+import com.example.user_service.mapper.UserMapper;
 import com.example.user_service.models.User;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.discovery.converters.Auto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,6 +70,9 @@ public class UserControllerIntegTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     private User user1;
     private User user2;
@@ -129,6 +132,7 @@ public class UserControllerIntegTest {
     @Test
     @DisplayName("Should add a User in repository")
     void addUser_shouldReturnAList() throws Exception{
+        //Estás serializando userList en vez del UserDTO que representa la actualización.
         String requestedBody= objectMapper.writeValueAsString(userList);
 
         mockMvc.perform(post("/user/addUser")
@@ -196,5 +200,33 @@ public class UserControllerIntegTest {
                         containsInAnyOrder("ACTION", "SCI_FIC")))
                 .andExpect(jsonPath("$.role").value("USER"));
     }
+
+    @Test
+    @DisplayName("Should update a user")
+    void updateUser_shouldReturnUser() throws Exception {
+        userRepository.saveAll(userList);
+
+        // Solo usamos el DTO que representa la actualización
+        //Aqui va el body que iria en el endpoint en caso de post o put
+        String requestedBody = objectMapper.writeValueAsString(userDTO);
+
+        // Llamamos al endpoint PUT
+        mockMvc.perform(put("/user/update/{userId}", user1.getUserId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestedBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value("1L"))
+                .andExpect(jsonPath("$.email").value("email11@gmail.com"))
+                .andExpect(jsonPath("$.preferences[*]",
+                        containsInAnyOrder("ANIMATION", "SCI_FIC")))
+                .andExpect(jsonPath("$.role").value("USER"));
+
+        // Verificamos que la base de datos se haya actualizado
+        User updatedUser = userRepository.findById(user1.getUserId()).orElseThrow();
+        assertEquals("email11@gmail.com", updatedUser.getEmail());
+        assertEquals(List.of("ANIMATION", "SCI_FIC"), updatedUser.getPreferences());
+        
+    }
+
 
 }
