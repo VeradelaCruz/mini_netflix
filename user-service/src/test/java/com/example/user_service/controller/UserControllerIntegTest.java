@@ -225,8 +225,22 @@ public class UserControllerIntegTest {
         User updatedUser = userRepository.findById(user1.getUserId()).orElseThrow();
         assertEquals("email11@gmail.com", updatedUser.getEmail());
         assertEquals(List.of("ANIMATION", "SCI_FIC"), updatedUser.getPreferences());
-        
+
     }
+
+    @Test
+    @DisplayName("Should get users by role")
+    void getUsersByRole_shouldReturnList() throws Exception {
+        userRepository.saveAll(userList);
+
+        mockMvc.perform(get("/user/getByRole/{role}", Role.USER)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2)) // solo USER
+                .andExpect(jsonPath("$[0].role").value("USER"))
+                .andExpect(jsonPath("$[1].role").value("USER"));
+    }
+
 
 
 }
