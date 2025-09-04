@@ -1,5 +1,8 @@
 package com.example.rating_service.repository;
 
+import com.example.rating_service.config.CacheTestConfig;
+import com.example.rating_service.config.MongoTestConfig;
+import com.example.rating_service.config.RedisConfig;
 import com.example.rating_service.enums.Score;
 import com.example.rating_service.mapper.RatingMapper;
 import com.example.rating_service.models.Rating;
@@ -7,11 +10,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,8 +23,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
         "eureka.client.enabled=false"
+
 })
 @ActiveProfiles("test")
+// Indicamos a Spring que importe estas configuraciones adicionales solo para este test
+// Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
+@Import({MongoTestConfig.class, CacheTestConfig.class})
+
+// Excluimos la configuración automática de Redis para este test
+// Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
+@ImportAutoConfiguration(exclude = RedisConfig.class)
 public class RatingRepositoryIntegTest {
     @Autowired
     private RatingRepository ratingRepository;
