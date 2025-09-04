@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,9 +32,10 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
 
@@ -240,6 +242,37 @@ public class UserControllerIntegTest {
                 .andExpect(jsonPath("$[0].role").value("USER"))
                 .andExpect(jsonPath("$[1].role").value("USER"));
     }
+
+    @Test
+    @DisplayName("Should send rating to rating service and verify DTO")
+    void sendRating_shouldReturnMessage() throws Exception {
+        // Guardamos usuarios (aunque no es estrictamente necesario aquí)
+        userRepository.saveAll(userList);
+
+        // Serializamos el DTO que vamos a enviar
+        String requestedBody = objectMapper.writeValueAsString(ratingUserDTO);
+
+        // Llamamos al endpoint
+        mockMvc.perform(post("/user/sendRating")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestedBody))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Rating sent and average updated successfully."));
+
+        // Capturamos el DTO que el service envió al client
+        ArgumentCaptor<RatingUserDTO> captor = ArgumentCaptor.forClass(RatingUserDTO.class);
+        verify(ratingClient, times(1)).addAndCalculateAverage(captor.capture());
+
+        RatingUserDTO sentDTO = captor.getValue();
+
+        // Verificamos que los campos sean correctos
+        assertEquals("1U", sentDTO.getUserId());
+        assertEquals("1M", sentDTO.getMovieId());
+        assertEquals("1R", sentDTO.getId());
+        assertEquals("THREE_STARS", sentDTO.getScore());
+        assertEquals("----", sentDTO.getComment());
+    }
+
 
 
 
