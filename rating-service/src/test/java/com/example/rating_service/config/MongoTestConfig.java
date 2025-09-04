@@ -1,4 +1,4 @@
-package com.example.rating_service.service;
+package com.example.rating_service.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

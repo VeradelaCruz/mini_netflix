@@ -1,6 +1,9 @@
 package com.example.rating_service.service;
 
 import com.example.rating_service.client.CatalogClient;
+import com.example.rating_service.config.CacheTestConfig;
+import com.example.rating_service.config.MongoTestConfig;
+import com.example.rating_service.config.RedisConfig;
 import com.example.rating_service.dtos.CatalogDTO;
 import com.example.rating_service.dtos.RatingAverageDTO;
 import com.example.rating_service.dtos.RatingDTO;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -34,9 +38,16 @@ import static org.mockito.Mockito.times;
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
         "eureka.client.enabled=false"
+
 })
 @ActiveProfiles("test")
-@Import(MongoTestConfig.class)
+// Indicamos a Spring que importe estas configuraciones adicionales solo para este test
+// Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
+@Import({MongoTestConfig.class, CacheTestConfig.class})
+
+// Excluimos la configuración automática de Redis para este test
+// Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
+@ImportAutoConfiguration(exclude = RedisConfig.class)
 public class RatingServiceIntegTest {
     @Autowired
     private RatingService ratingService;
@@ -228,6 +239,7 @@ public class RatingServiceIntegTest {
     void findByMovieId_ShouldReturnAList(){
         //Guardamos ratings previos en la base para simular datos existentes
         ratingRepository.saveAll(ratingList);
+        Mockito.when(catalogClient.getById("C1")).thenReturn(catalogDTO);
 
         // Llamamos al metodo a probar, buscando por movieId "C1"
         List<Rating> list = ratingService.findAllByMovieId("C1");
