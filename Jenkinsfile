@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/VeradelaCruz/mini-netflix.git',
+                git branch: 'main', url: 'https://github.com/VeradelaCruz/mini_netflix.git',
                 credentialsId: 'github-creds'
             }
         }
