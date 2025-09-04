@@ -1,6 +1,9 @@
 package com.example.rating_service.controller;
 
 import com.example.rating_service.client.CatalogClient;
+import com.example.rating_service.config.CacheTestConfig;
+import com.example.rating_service.config.MongoTestConfig;
+import com.example.rating_service.config.RedisConfig;
 import com.example.rating_service.dtos.CatalogDTO;
 import com.example.rating_service.dtos.RatingAverageDTO;
 import com.example.rating_service.dtos.RatingDTO;
@@ -14,15 +17,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -37,8 +40,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
         "eureka.client.enabled=false"
+
 })
 @ActiveProfiles("test")
+// Indicamos a Spring que importe estas configuraciones adicionales solo para este test
+// Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
+@Import({MongoTestConfig.class, CacheTestConfig.class})
+
+// Excluimos la configuración automática de Redis para este test
+// Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
+@ImportAutoConfiguration(exclude = RedisConfig.class)
 @AutoConfigureMockMvc
 public class RatingControllerIntegTest {
     @Autowired
