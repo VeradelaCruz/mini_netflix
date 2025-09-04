@@ -183,4 +183,18 @@ public class UserControllerIntegTest {
         result.andExpect(jsonPath("$.length()").value(userList.size()));
     }
 
+    @Test
+    @DisplayName("Should return a user by id")
+    void  getUserById_shouldReturnUser() throws Exception{
+        userRepository.saveAll(userList);
+
+        mockMvc.perform(get("/user/{userId}", user1.getUserId())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.userId").value("1L"))
+                .andExpect(jsonPath("$.email").value("email1@gmail.com"))
+                .andExpect(jsonPath("$.preferences[*]",
+                        containsInAnyOrder("ACTION", "SCI_FIC")))
+                .andExpect(jsonPath("$.role").value("USER"));
+    }
+
 }
