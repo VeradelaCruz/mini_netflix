@@ -273,6 +273,22 @@ public class UserControllerIntegTest {
         assertEquals("----", sentDTO.getComment());
     }
 
+    @Test
+    @DisplayName("Should return a list of users by preferences")
+    void getByPreferences_shouldReturnList() throws Exception{
+        userRepository.saveAll(userList);
+
+        mockMvc.perform(get("/user/get-by-preferences")
+                        .param("preferences", "SCI_FIC", "ACTION")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].userId").value("1L"))
+                .andExpect(jsonPath("$[1].userId").value("2L"))
+                .andExpect(jsonPath("$[2].userId").value("3L"));
+
+    }
+
 
 
 

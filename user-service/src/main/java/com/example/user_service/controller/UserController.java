@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/get-by-preferences")
-    public ResponseEntity<List<User>> getUsersByPreferences(@RequestBody List<String> preferences) {
+    public ResponseEntity<List<User>> getUsersByPreferences(@RequestParam List<String> preferences) {
         List<User> users = userService.findUserByPreferences(preferences);
         return ResponseEntity.ok(users);
     }
