@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
@@ -157,4 +158,29 @@ public class UserControllerIntegTest {
                 .andExpect(jsonPath("$[2].role").value("ADMIN"));
 
     }
+
+    @Test
+    @DisplayName("Should get all users")
+    void getAllUsers_shouldReturnList() throws Exception {
+        userRepository.saveAll(userList);
+
+        // Ejecutamos la petición
+        ResultActions result = mockMvc.perform(get("/user/getAll")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // Recorremos la lista con forEach y validamos cada usuario
+        for (int i = 0; i < userList.size(); i++) {
+            User user = userList.get(i);
+
+            result.andExpect(jsonPath("$[" + i + "].userId").value(user.getUserId()))
+                    .andExpect(jsonPath("$[" + i + "].email").value(user.getEmail()))
+                    .andExpect(jsonPath("$[" + i + "].preferences[*]",
+                            containsInAnyOrder(user.getPreferences().toArray())))
+                    .andExpect(jsonPath("$[" + i + "].role").value(user.getRole().name()));
+        }
+
+        result.andExpect(jsonPath("$.length()").value(userList.size()));
+    }
+
 }
