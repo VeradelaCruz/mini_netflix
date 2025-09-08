@@ -48,8 +48,6 @@ import static org.junit.jupiter.api.Assertions.*;
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
-//Esto limpia la base de datos entre tests:
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) // limpia BD entre tests
 @Testcontainers
 public class CatalogServiceIntegTest {
 

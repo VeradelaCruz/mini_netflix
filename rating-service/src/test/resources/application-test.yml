@@ -1,7 +1,9 @@
 spring:
   data:
     mongodb:
-      database: rating_test_db   # Solo definimos el nombre, Flapdoodle levanta la instancia embebida
+      uri: mongodb://mongo:27017/rating_test_db
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 eureka:
   client:
