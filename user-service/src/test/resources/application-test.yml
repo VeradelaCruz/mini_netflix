@@ -1,7 +1,10 @@
 spring:
   data:
     mongodb:
-      database: user_test_db
+      uri: mongodb://mongo:27017/user_test_db
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
   cache:
     type: simple
   main:

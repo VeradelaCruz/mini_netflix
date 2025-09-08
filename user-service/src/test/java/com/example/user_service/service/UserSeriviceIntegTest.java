@@ -23,6 +23,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +49,17 @@ import static org.mockito.Mockito.*;
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
+@Testcontainers
 public class UserSeriviceIntegTest {
+    // 1️⃣ Declaramos el contenedor de Mongo
+    @Container
+    static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:6.0");
+
+    // 2️⃣ Configuramos Spring Boot para usar la URI del contenedor
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
+    }
 
     @Autowired
     private UserRepository userRepository;

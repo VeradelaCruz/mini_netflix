@@ -15,6 +15,7 @@ import com.example.user_service.models.User;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,6 +56,7 @@ import java.util.List;
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
 @AutoConfigureMockMvc
+@Testcontainers
 public class UserControllerIntegTest {
 
     @Autowired
@@ -85,6 +90,15 @@ public class UserControllerIntegTest {
     private RatingScoreDTO ratingScoreDTO;
     private RatingUserDTO ratingUserDTO;
     private UserRoleDTO roleDTO;
+
+    @Container
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0");
+
+    @BeforeAll
+    static void setUpAll() {
+        mongoDBContainer.start();
+        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
+    }
 
     @BeforeEach
     void setUp(){
