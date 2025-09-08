@@ -12,6 +12,7 @@ import com.example.catalog_service.exception.MovieNotFoundByName;
 import com.example.catalog_service.mapper.CatalogMapper;
 import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
+import net.bytebuddy.utility.dispatcher.JavaDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +48,20 @@ import static org.junit.jupiter.api.Assertions.*;
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
+//Esto limpia la base de datos entre tests:
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) // limpia BD entre tests
+@Testcontainers
 public class CatalogServiceIntegTest {
+
+    // 1️⃣ Declaramos el contenedor de Mongo
+    @Container
+    static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:6.0");
+
+    // 2️⃣ Configuramos Spring Boot para usar la URI del contenedor
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
+    }
 
     @Autowired
     private CatalogService catalogService;

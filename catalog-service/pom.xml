@@ -118,14 +118,16 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <version>4.8.0</version>
+            <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- JUnit Jupiter -->
+
+        <!-- JUnit Jupiter API y Engine -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -152,7 +154,29 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- Testcontainers JUnit 5 support -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.20.3</version>
+            <scope>test</scope>
+        </dependency>
 
+        <!-- Testcontainers core -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.19.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testcontainers para MongoDB -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mongodb</artifactId>
+            <version>1.19.1</version>
+            <scope>test</scope>
+        </dependency>
 
 
     </dependencies>

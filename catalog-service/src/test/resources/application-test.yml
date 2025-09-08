@@ -1,8 +1,13 @@
 spring:
   data:
     mongodb:
-      database: catalog_test_db
+      uri: mongodb://mongo:27017/catalog_test_db
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 eureka:
   client:
     enabled: false
+
+server:
+  port: 0

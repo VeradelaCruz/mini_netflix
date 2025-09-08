@@ -10,6 +10,7 @@ import com.example.catalog_service.models.Catalog;
 import com.example.catalog_service.repository.CatalogRepository;
 import com.example.catalog_service.service.CatalogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
@@ -33,18 +37,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
         "eureka.client.enabled=false"
-
 })
 @ActiveProfiles("test")
 // Indicamos a Spring que importe estas configuraciones adicionales solo para este test
 // Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
-@Import({MongoTestConfig.class, CacheTestConfig.class})
+@Import(CacheTestConfig.class)
 
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
 @AutoConfigureMockMvc
+@Testcontainers
 public class CatalogControllerIntegTest {
+
     @Autowired
     private CatalogService catalogService;
 
@@ -64,6 +69,15 @@ public class CatalogControllerIntegTest {
     private CatalogUpdateDto catalogUpdateDto;
     private RatingScoreDTO ratingScoreDTO;
     private List<Genre> genres;
+
+    @Container
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0");
+
+    @BeforeAll
+    static void setUpAll() {
+        mongoDBContainer.start();
+        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
+    }
 
     @BeforeEach
     void setUp() {
@@ -127,6 +141,8 @@ public class CatalogControllerIntegTest {
                 .andExpect(jsonPath("$[1].title").value("Title2"));
 
     }
+
+
     @Test
     @DisplayName("Should get all movies via GET endpoint")
     void getAll_ShouldReturnAList() throws Exception {

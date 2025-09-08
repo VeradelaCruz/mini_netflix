@@ -14,4 +14,5 @@ public class MongoTestConfig {
         // Solo usar la base de test
         return new MongoTemplate(mongoDatabaseFactory);
     }
+
 }
