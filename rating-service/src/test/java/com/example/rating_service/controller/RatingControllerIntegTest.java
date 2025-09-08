@@ -57,16 +57,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Testcontainers
 public class RatingControllerIntegTest {
-
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0");
-
-    @BeforeAll
-    static void setUpAll() {
-        mongoDBContainer.start();
-        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-    }
-
     @Autowired
     private RatingService ratingService;
 
@@ -94,7 +84,14 @@ public class RatingControllerIntegTest {
     private CatalogDTO catalogDTO;
     private RatingDTO ratingDTO;
 
+    @Container
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0");
 
+    @BeforeAll
+    static void setUpAll() {
+        mongoDBContainer.start();
+        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
+    }
 
     @BeforeEach
     void  setUp(){

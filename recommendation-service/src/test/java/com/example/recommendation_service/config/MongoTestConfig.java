@@ -1,4 +1,4 @@
-package com.example.recommendation_service.service;
+package com.example.recommendation_service.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

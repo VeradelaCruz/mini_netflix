@@ -3,6 +3,7 @@ package com.example.recommendation_service.service;
 import com.example.recommendation_service.client.CatalogClient;
 import com.example.recommendation_service.client.UserClient;
 import com.example.recommendation_service.config.CacheTestConfig;
+import com.example.recommendation_service.config.MongoTestConfig;
 import com.example.recommendation_service.config.RedisConfig;
 import com.example.recommendation_service.dtos.CatalogDTO;
 import com.example.recommendation_service.dtos.UserDTO;
@@ -19,7 +20,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,7 +46,19 @@ import static org.mockito.Mockito.*;
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
+@Testcontainers
 public class RecommendationServiceIntegTest {
+
+    // 1️⃣ Declaramos el contenedor de Mongo
+    @Container
+    static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:6.0");
+
+    // 2️⃣ Configuramos Spring Boot para usar la URI del contenedor
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
+    }
+
     @Autowired
     private RecommendationService recommendationService;
 
