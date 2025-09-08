@@ -26,11 +26,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(properties = {
-        "spring.cloud.config.enabled=false",
-        "eureka.client.enabled=false"
-
-})
 @ActiveProfiles("test")
 // Indicamos a Spring que importe estas configuraciones adicionales solo para este test
 // Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
@@ -44,11 +39,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RatingRepositoryIntegTest {
 
     @Container
-    static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:6.0")
-            .withEnv("MONGO_INITDB_DATABASE", "catalog_test_db"); // esto crea la DB al iniciar
+    static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:6.0");
 
     @DynamicPropertySource
     static void setMongoProperties(DynamicPropertyRegistry registry) {
+        mongoContainer.start(); // asegúrate de iniciar el contenedor
         registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
     }
 
