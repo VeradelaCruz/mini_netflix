@@ -1,10 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/rating_test_db
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
+      database: rating_test_db   # Solo definimos el nombre, Flapdoodle levanta la instancia embebida
 
 eureka:
   client:

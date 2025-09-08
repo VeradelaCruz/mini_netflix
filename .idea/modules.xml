@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/catalog-service/catalog-service.iml" filepath="$PROJECT_DIR$/catalog-service/catalog-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/mini_netflix.iml" filepath="$PROJECT_DIR$/.idea/mini_netflix.iml" />
       <module fileurl="file://$PROJECT_DIR$/recommendation-service/recommendation-service.iml" filepath="$PROJECT_DIR$/recommendation-service/recommendation-service.iml" />
     </modules>

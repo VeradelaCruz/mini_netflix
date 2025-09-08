@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/user_test_db
+      database: user_test_db
   cache:
     type: simple
   main:
