@@ -33,11 +33,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(properties = {
-        "spring.cloud.config.enabled=false",
-        "eureka.client.enabled=false"
-
-})
 @ActiveProfiles("test")
 // Indicamos a Spring que importe estas configuraciones adicionales solo para este test
 // Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
