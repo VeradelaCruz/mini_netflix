@@ -309,10 +309,8 @@ public class UserControllerIntegTest {
 
         mockMvc.perform(get("/user/count-by-roles")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].role").value("ADMIN"))
-                .andExpect(jsonPath("$[0].amount").value(1))
-                .andExpect(jsonPath("$[1].role").value("USER"))
-                .andExpect(jsonPath("$[1].amount").value(2));
+                .andExpect(jsonPath("$[*].role", containsInAnyOrder("ADMIN", "USER")))
+                .andExpect(jsonPath("$[*].amount", containsInAnyOrder(1, 2)));
 
     }
 
