@@ -50,7 +50,7 @@ import static org.mockito.Mockito.*;
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
 @ImportAutoConfiguration(exclude = RedisConfig.class)
 @Testcontainers
-public class UserSeriviceIntegTest {
+public class UserServiceIntegTest {
     // 1️⃣ Declaramos el contenedor de Mongo
     @Container
     static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:6.0");
@@ -58,7 +58,7 @@ public class UserSeriviceIntegTest {
     // 2️⃣ Configuramos Spring Boot para usar la URI del contenedor
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
+        registry.add("spring.data.mongodb.uri", mongoContainer::getConnectionString);
     }
 
     @Autowired

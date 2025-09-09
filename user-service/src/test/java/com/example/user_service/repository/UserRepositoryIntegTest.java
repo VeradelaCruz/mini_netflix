@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 // Indicamos a Spring que importe estas configuraciones adicionales solo para este test
 // Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
-@Import({MongoTestConfig.class, CacheTestConfig.class})
+@Import({MongoTestConfig.class, CacheTestConfig.class, UserService.class})
 
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
