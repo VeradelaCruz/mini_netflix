@@ -5,6 +5,7 @@ import com.example.rating_service.config.MongoTestConfig;
 import com.example.rating_service.config.RedisConfig;
 import com.example.rating_service.enums.Score;
 import com.example.rating_service.mapper.RatingMapper;
+import com.example.rating_service.mapper.RatingMapperImpl;
 import com.example.rating_service.models.Rating;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 // Indicamos a Spring que importe estas configuraciones adicionales solo para este test
 // Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
-@Import({MongoTestConfig.class, CacheTestConfig.class})
+@Import({MongoTestConfig.class, CacheTestConfig.class, RatingMapperImpl.class})
 
 // Excluimos la configuración automática de Redis para este test
 // Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
