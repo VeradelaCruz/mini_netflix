@@ -97,6 +97,10 @@ Mini Netflix is an **API that provides movie and book recommendations** based on
 
 ---
 
+## 📊 Architecture Diagram
+
+![Architecture Diagram](docs/architecture.png)
+
 ## ⚙ Installation & Running
 
 
