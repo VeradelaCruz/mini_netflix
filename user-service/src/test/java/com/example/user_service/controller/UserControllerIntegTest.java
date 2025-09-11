@@ -41,20 +41,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
-
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
-        "eureka.client.enabled=false"
-
+        "eureka.client.enabled=false",
+        "eureka.instance.enabled=false"
 })
 @ActiveProfiles("test")
-// Indicamos a Spring que importe estas configuraciones adicionales solo para este test
-// Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
 @Import({MongoTestConfig.class, CacheTestConfig.class})
-
-// Excluimos la configuración automática de Redis para este test
-// Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
-@ImportAutoConfiguration(exclude = RedisConfig.class)
+@ImportAutoConfiguration(exclude = {
+        RedisConfig.class,
+        org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration.class,
+        org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration.class
+})
 @AutoConfigureMockMvc
 @Testcontainers
 public class UserControllerIntegTest {

@@ -9,3 +9,5 @@ spring:
 eureka:
   client:
     enabled: false
+  instance:
+    enabled: false
