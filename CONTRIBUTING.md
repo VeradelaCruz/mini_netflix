@@ -73,7 +73,7 @@ git push origin feature/new-feature
 
 If you find a bug:
 
-1. First, check the [Issues](https://github.com/veradelacruz/mini-netflix/issues) to see if it’s already reported.  
+1. First, check the [Issues](https://github.com/VeradelaCruz/mini_netflix/issues) to see if it’s already reported.  
 2. If not, open a new one and describe:  
 - Steps to reproduce.  
 - Expected vs. actual behavior.  
