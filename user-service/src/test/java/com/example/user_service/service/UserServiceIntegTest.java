@@ -64,7 +64,7 @@ public class UserServiceIntegTest {
     @MockBean
     private CatalogClient catalogClient;
 
-    @Autowired
+    @MockBean
     private UserMapper userMapper;
 
     private User user1;

@@ -28,6 +28,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.testcontainers.containers.MongoDBContainer;
@@ -92,10 +94,9 @@ public class UserControllerIntegTest {
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0");
 
-    @BeforeAll
-    static void setUpAll() {
-        mongoDBContainer.start();
-        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
+    @DynamicPropertySource
+    static void setMongoProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
     @BeforeEach

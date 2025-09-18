@@ -10,18 +10,14 @@ import com.example.user_service.dtos.RatingUserDTO;
 import com.example.user_service.dtos.UserDTO;
 import com.example.user_service.dtos.UserRoleDTO;
 import com.example.user_service.enums.Role;
-import com.example.user_service.mapper.UserMapper;
 import com.example.user_service.models.User;
-import com.example.user_service.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -33,16 +29,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ActiveProfiles("test")
-// Indicamos a Spring que importe estas configuraciones adicionales solo para este test
-// Esto permite usar beans definidos en MongoTestConfig y CacheTestConfig
-@Import({MongoTestConfig.class, CacheTestConfig.class, UserService.class})
 
-// Excluimos la configuración automática de Redis para este test
-// Esto evita que Spring intente cargar Redis y su CacheManager real, que no necesitamos en tests
-@ImportAutoConfiguration(exclude = RedisConfig.class)
-@Testcontainers
+@ActiveProfiles("test")
 @DataMongoTest
+@Testcontainers
+@ImportAutoConfiguration(exclude = {
+        org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration.class,
+        org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration.class
+})
 public class UserRepositoryIntegTest {
 
     @Container
@@ -58,17 +52,12 @@ public class UserRepositoryIntegTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private UserService userService;
-
     @MockBean
     private RatingClient ratingClient;
 
     @MockBean
     private CatalogClient catalogClient;
 
-    @Autowired
-    private UserMapper userMapper;
 
     private User user1;
     private User user2;
