@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-deployment
+  namespace: mini-netflix
+  labels:
+    app: eureka-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-service
+  template:
+    metadata:
+      labels:
+        app: eureka-service
+    spec:
+      containers:
+      - name: eureka-container
+        image: veradelacruz/eureka-service:latest
+        ports:
+        - containerPort: 8761

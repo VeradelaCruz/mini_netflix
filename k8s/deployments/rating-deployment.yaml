@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rating-deployment
+  namespace: mini-netflix
+  labels:
+    app: rating-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rating-service
+  template:
+    metadata:
+      labels:
+        app: rating-service
+    spec:
+      containers:
+      - name: rating-container
+        image: veradelacruz/rating-service:latest
+        ports:
+        - containerPort: 8082
