@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: api-gateway-deployment
   namespace: mini-netflix
-  labels:
-    app: api-gateway
 spec:
   replicas: 1
   selector:
@@ -16,7 +14,7 @@ spec:
         app: api-gateway
     spec:
       containers:
-      - name: api-gateway-container
-        image: veradelacruz/api-gateway:latest
-        ports:
-        - containerPort: 9090
+        - name: api-gateway
+          image: veradelacruz/apigateway:latest  
+          ports:
+            - containerPort: 9090
