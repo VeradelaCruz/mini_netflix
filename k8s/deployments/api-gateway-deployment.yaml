@@ -18,4 +18,4 @@ spec:
           image: mini-netflix-apigateway:latest
           ports:
             - containerPort: 9090
-     
+
