@@ -29,7 +29,7 @@ services:
 
   # ------------------ API Gateway ------------------
   api-gateway:
-    image: apigateway:latest
+    image: mini-netflix-apigateway:latest
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
