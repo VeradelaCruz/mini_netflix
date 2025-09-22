@@ -14,7 +14,8 @@ spec:
         app: api-gateway
     spec:
       containers:
-        - name: api-gateway
-          image: veradelacruz/apigateway:latest  
+        - name: api-gateway-container
+          image: mini-netflix-apigateway:latest
           ports:
             - containerPort: 9090
+     
