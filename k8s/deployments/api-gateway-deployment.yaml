@@ -16,6 +16,7 @@ spec:
       containers:
         - name: api-gateway-container
           image: mini-netflix-apigateway:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 9090
 
